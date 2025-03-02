@@ -9,11 +9,9 @@ rna -- a string containing RNA nucleotides
 complements -- a dictionary containing complements for each DNA nucleotide
 """
 
-
 dna = 'ATCG'
 rna = 'AUCG'
 complements = {"A":"T", "T":"A", "C":"G", "G":"C"}
-
 
 def transcribe(dna_seq: str) -> str:
     if not all(letter in 'ATCG' for letter in dna_seq):
