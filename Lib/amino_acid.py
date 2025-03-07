@@ -1,44 +1,42 @@
 """A collection of protein constants.
 
-
 Public module variables:
 
-
-one_letter_codes -- a string containing all amino acid one letter codes
-three_letter_codes -- a list containing all amino acid three letter codes
-amino_acid_names -- a list containing all amino acid names
-codons_per_aa -- a dictionary containing the number of codons that can result in specified amino acid
-codon_table -- a dictionary containing all RNA codon to amino acid conversions
-codons -- a list containing all codons
-mono_mass --  a dictionary containing the mass of all amino acids
+ONE_LETTER_CODES -- a string containing all amino acid one letter codes
+THREE_LETTER_CODES -- a list containing all amino acid three letter codes
+AMINO_ACID_NAMES -- a list containing all amino acid names
+CODONS_PER_AA -- a dictionary containing the number of CODONS that can result in specified amino acid
+CODON_TABLE -- a dictionary containing all RNA codon to amino acid conversions
+CODONS -- a list containing all CODONS
+MONO_MASS --  a dictionary containing the mass of all amino acids
 *_ext -- same as the above with the addition of selenocysteine and pyrrolysine
 """
 
 from itertools import product
 import re
 
-one_letter_codes = 'ACDEFGHIKLMNPQRSTVWY'
-one_letter_codes_ext = one_letter_codes + 'OU'
+ONE_LETTER_CODES = 'ACDEFGHIKLMNPQRSTVWY'
+ONE_LETTER_CODES_EXT = ONE_LETTER_CODES + 'OU'
 
-three_letter_codes = ["Ala", "Arg", "Asn", "Asp", "Cys", "Glu", "Gln", "Gly", "His", 
+THREE_LETTER_CODES = ["Ala", "Arg", "Asn", "Asp", "Cys", "Glu", "Gln", "Gly", "His", 
                       "Ile", "Leu", "Lys", "Met", "Phe", "Pro", "Ser", "Thr", "Trp", 
                       "Tyr", "Val"]
-three_letter_codes_ext = ["Pyl", "Sec"]
-three_letter_codes_ext.extend(three_letter_codes)
+THREE_LETTER_CODES_EXT = ["Pyl", "Sec"]
+THREE_LETTER_CODES_EXT.extend(THREE_LETTER_CODES)
 
-amino_acid_names = ["Alanine", "Arginine", "Asparagine", "Aspartic acid", "Cysteine", "Glutamic acid", 
+AMINO_ACID_NAMES = ["Alanine", "Arginine", "Asparagine", "Aspartic acid", "Cysteine", "Glutamic acid", 
                     "Glutamine", "Glycine", "Histidine", "Isoleucine", "Leucine", "Lysine", "Methionine",
                     "Phenylalanine", "Proline", "Serine", "Threonine", "Tryptophan", "Tyrosine", "Valine"]
 
-amino_acid_names_ext = ["Pyrrolysine", "Selenocysteine"]
-amino_acid_names_ext.extend(amino_acid_names)
+AMINO_ACID_NAMES_EXT = ["Pyrrolysine", "Selenocysteine"]
+AMINO_ACID_NAMES_EXT.extend(AMINO_ACID_NAMES)
 
-codons = ["".join(x) for x in product('AUCG', repeat=3)]
-codons_per_aa ={'A': 4, 'W': 1, 'D': 2, 'F': 2, 'S': 6, 'Stop': 3, 'P': 4,
+CODONS = ["".join(x) for x in product('AUCG', repeat=3)]
+CODONS_PER_AA ={'A': 4, 'W': 1, 'D': 2, 'F': 2, 'S': 6, 'Stop': 3, 'P': 4,
                 'E': 2, 'V': 4, 'R': 6, 'M': 1, 'Q': 2, 'L': 6, 'K': 2, 
                 'I': 3, 'C': 2, 'H': 2, 'T': 4, 'G': 4, 'N': 2, 'Y': 2}
 
-codon_table =  {"UUU":"F",    "UCU":"S",    "UAU":"Y",    "UGU":"C",
+CODON_TABLE =  {"UUU":"F",    "UCU":"S",    "UAU":"Y",    "UGU":"C",
                 "UUC":"F",    "UCC":"S",    "UAC":"Y",    "UGC":"C",
                 "UUA":"L",    "UCA":"S",    "UAA":"STOP", "UGA":"STOP",
                 "UUG":"L",    "UCG":"S",    "UAG":"STOP", "UGG":"W",
@@ -55,21 +53,16 @@ codon_table =  {"UUU":"F",    "UCU":"S",    "UAU":"Y",    "UGU":"C",
                 "GUA":"V",    "GCA":"A",    "GAA":"E",    "GGA":"G",
                 "GUG":"V",    "GCG":"A",    "GAG":"E",    "GGG":"G"}
 
-mono_mass ={"A": 71.037113805, "C":103.009184505, "D":115.026943065, "E":129.042593135,
+MONO_MASS ={"A": 71.037113805, "C":103.009184505, "D":115.026943065, "E":129.042593135,
             "F":147.068413945, "G": 57.021463735, "H":137.058911875, "I":113.084064015,
             "K":128.094963050, "L":113.084064015, "M":131.040484645, "N":114.042927470,
             "P": 97.052763875, "Q":128.058577540, "R":156.101111050, "S": 87.032028435,
             "T":101.047678505, "V": 99.068413945, "W":186.079312980, "Y":163.063328575}
 
-mono_mass_ext ={"O":237.147726925, "U":150.953633405}
-mono_mass_ext.update(mono_mass)
+MONO_MASS_EXT ={"O":237.147726925, "U":150.953633405}
+MONO_MASS_EXT.update(MONO_MASS)
 
 def motif_finder(protein: str, pattern: str, ext: bool = False) -> list[int]:
-    """
-    :param protein: a string of amino acids
-    :param pattern: python-flavoured regex string for desired pattern or plain text for exact matches
-    :return: List of all start positions of motif (including overlapping positions)
-    """
     """
     Find all occurrences of a specified motif (pattern) in a given protein sequence.
 
@@ -99,10 +92,10 @@ def motif_finder(protein: str, pattern: str, ext: bool = False) -> list[int]:
     >>> motif_finder("ACDEFGHIKLMNPQRSTVWY", "A.*F")
     [1]
     """
-    aa_codes = one_letter_codes if not ext else one_letter_codes_ext
+    aa_codes = ONE_LETTER_CODES if not ext else ONE_LETTER_CODES_EXT
     aa_codes = set(aa_codes)
     if not protein:
-        raise ValueError("The input fasta dictionary is empty. Please provide valid data.")
+        raise ValueError("The input protein sequence is empty. Please provide valid data.")
     if not isinstance(pattern, str) or not pattern:
         raise ValueError("The pattern must be a non-empty string.")
     if not all(aa in aa_codes for aa in protein):
@@ -110,11 +103,6 @@ def motif_finder(protein: str, pattern: str, ext: bool = False) -> list[int]:
     return [m.start(0)+1 for m in re.finditer(f"(?={pattern})", protein)] #positive lookahead match is zero-width
 
 def fasta_motif_finder(fasta_dict: dict[str, str], pattern: str, ext: bool = False) -> dict[str, list[str]]:
-    """
-    :param fasta_dict: dictionary of fasta values from get_uniprot_fasta
-    :param pattern: python-flavoured regex string for desired pattern or plain text for exact matches
-    :return: dictionary containing fasta_id and list of all positions matching motif (including overlapping positions)
-    """
     """
     Find all occurrences of a specified motif (pattern) in protein sequences from a FASTA dictionary.
 
@@ -146,7 +134,7 @@ def fasta_motif_finder(fasta_dict: dict[str, str], pattern: str, ext: bool = Fal
     >>> fasta_motif_finder(fasta_dict, "A.*F")
     {"P12345": [1]}
     """
-    aa_codes = one_letter_codes if not ext else one_letter_codes_ext
+    aa_codes = ONE_LETTER_CODES if not ext else ONE_LETTER_CODES_EXT
     aa_codes = set(aa_codes)
     if not fasta_dict:
         raise ValueError("The input fasta dictionary is empty. Please provide valid data.")
