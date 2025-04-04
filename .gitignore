@@ -7,3 +7,6 @@ __pycache__/
 # distribution files
 build/
 dist/
+
+# text matrices
+text_matrices/

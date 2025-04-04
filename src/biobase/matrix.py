@@ -1,19 +1,46 @@
 import json
 from pathlib import Path
 
+def main():
+    blosum = BLOSUM(62)
+    pam = PAM(250)
+    identity0 = IDENTITY(0)
+    match = MATCH()
+
+    print(blosum["A"]["A"])
+    print(blosum)
+    print(pam["A"]["A"])
+    print(pam)
+    print(identity0["A"]["A"])
+    print(identity0["C"]["A"])
+    print(identity0)
+    print(match["A"]["A"])
+    print(match["C"]["A"])
+    print(match)
+    print(MATCH.available_matrices())
+    print(blosum.available_matrices())
+
 class _Matrix:
     matrices = {
-           "BLOSUM": [45, 50, 62, 80, 90],
-           "PAM": [30, 70, 250]
+            "BLOSUM": [30, 35, 40, 45, 50, 55, 60, 62, 65, 70, 75, 80, 85, 90],
+            "PAM": [10, 30, 50, 60, 70, 80, 90, 100, 110, 120, 160, 170, 200, 250, 300, 400, 450, 500],
+            "IDENTITY": [-10000, 0],
+            "MATCH": [""]
            }
-    default_matrix_folder = Path("src/biobase/matrices").resolve()
-    def __init__(self, matrix_folder: str = None)->None:
+    # Get the project root directory (src/biobase)
+    PROJECT_ROOT = Path(__file__).parent.parent.resolve()
+
+    # Common subdirectories
+    MATRICES_DIR = PROJECT_ROOT / "biobase" / "matrices"
+    TEXT_MATRICES_DIR = MATRICES_DIR / "text_matrices"
+
+    def __init__(self, matrix_folder: str | Path| None = None)->None:
         """
         Initialize a Matrix object with a specified matrix folder.
 
         Parameters:
         - matrix_folder (str | Path): Path to the folder containing matrix files.
-                                     Defaults to './matrices'
+                                     Defaults to 'PROJECT_ROOT/src/biobase/matrices'
 
         Returns:
         - None
@@ -22,7 +49,7 @@ class _Matrix:
         >>> matrix = _Matrix()  # Uses default folder
         >>> matrix = _Matrix("path/to/matrices")  # Uses custom folder
         """
-        self.folder = self.default_matrix_folder if matrix_folder == None else matrix_folder
+        self.folder = self.MATRICES_DIR if matrix_folder is None else Path(matrix_folder)
         self.matrix_data = None
         self.matrix_name = None
         self.version = None
@@ -85,7 +112,7 @@ class _Matrix:
         json_file_path  = self.folder / filename
 
         if not json_file_path.exists():
-            raise RuntimeError("File not found")
+            raise RuntimeError(f"File not found: {json_file_path}")
 
         with open(json_file_path) as file:
             self.matrix_data = json.load(file)
@@ -116,7 +143,6 @@ class _Matrix:
         if not self.matrix_data:
             raise ValueError("No matrix data loaded")
 
-
         if key not in self.matrix_data:
             raise KeyError(f"Key '{key}' not found in matrix")
 
@@ -124,10 +150,11 @@ class _Matrix:
         sub_matrix = self.matrix_data[key]
         if isinstance(sub_matrix, dict):
             # Return the current matrix with the sub-matrix data, simulating the chained access
-            new_matrix = self.__class__(self.version)
+            new_matrix = _Matrix.__new__(_Matrix) # Create uninitialized instance
             new_matrix.matrix_data = sub_matrix
             new_matrix.matrix_name = self.matrix_name
             new_matrix.version = self.version
+            new_matrix.folder = self.folder
             return new_matrix
         return sub_matrix
 
@@ -164,11 +191,11 @@ class BLOSUM(_BaseMatrixClass):
         while lower numbers (e.g., BLOSUM45) are for more divergent sequences.
 
         Parameters:
-        - version (int): BLOSUM version number (45, 50, 62, 80, or 90)
+        - version (int): BLOSUM version number (ex. 45, 50, 62, 80, or 90)
         - matrix_folder (str | Path): Path to matrix files. Defaults to Matrix.default_matrix_folder
 
         Raises:
-        - ValueError: If version is not one of: 45, 50, 62, 80, 90
+        - ValueError: If version is not one of the available version numbers
         - RuntimeError: If matrix file is not found
 
         Example:
@@ -190,11 +217,11 @@ class PAM(_BaseMatrixClass):
         while higher numbers (e.g., PAM250) are for more divergent sequences.
 
         Parameters:
-        - version (int): PAM version number (30, 70, or 250)
+        - version (int): PAM version number ex. (30, 70, or 250)
         - matrix_folder (str | Path): Path to matrix files. Defaults to Matrix.default_matrix_folder
 
         Raises:
-        - ValueError: If version is not one of: 30, 70, 250
+        - ValueError: If version is not one of the available version numbers
         - RuntimeError: If matrix file is not found
 
         Example:
@@ -206,8 +233,60 @@ class PAM(_BaseMatrixClass):
         """
         super().__init__("PAM", version, matrix_folder)
 
-def text_matrix_to_json(input_matrix_path: str | Path, output_matrix_path: str | Path, matrix_name: str) -> None:
-    """
+class IDENTITY(_BaseMatrixClass):
+    def __init__(self, version: int, matrix_folder: str = None) -> None:
+        """
+        Initialize an IDENTITY scoring matrix.
+
+        The IDENTITY matrix is a simple scoring matrix that gives:
+        - A positive score of typically 1 for matching amino acids
+        - A negative score of typically 0 for mismatching amino acids
+        This matrix treats all mismatches equally, unlike BLOSUM or PAM matrices.
+
+        Parameters:
+        - version (int): IDENTITY version number (-10000, or 0)
+        - matrix_folder (str | Path): Path to matrix files. Defaults to Matrix.default_matrix_folder
+
+        Raises:
+        - RuntimeError: If matrix file is not found
+
+        Example:
+        >>> identity = IDENTITY(0)
+        >>> identity["A"]["A"]  # Score for matching Alanine-Alanine
+        1
+        >>> identity["W"]["C"]  # Score for any mismatch
+        0
+        """
+        super().__init__("IDENTITY", version, matrix_folder)
+
+class MATCH(_BaseMatrixClass):
+    def __init__(self, matrix_folder: str = None) -> None:
+        """
+        Initialize a MATCH scoring matrix.
+
+        The MATCH matrix is a binary scoring matrix that gives:
+        - A score of +1 for matching amino acids
+        - A score of -1 for mismatching amino acids
+        This matrix is useful for calculating sequence identity and in cases
+        where you only want to count exact matches.
+
+        Parameters:
+        - matrix_folder (str | Path): Path to matrix files. Defaults to Matrix.default_matrix_folder
+
+        Raises:
+        - RuntimeError: If matrix file is not found
+
+        Example:
+        >>> match = MATCH()
+        >>> match["A"]["A"]  # Score for matching Alanine-Alanine
+        1
+        >>> match["W"]["C"]  # Score for any mismatch
+        -1
+        """
+        super().__init__("MATCH", "", matrix_folder)
+
+def text_matrix_to_json(input_matrix_path: str | Path , output_matrix_path: str | Path , matrix_name: str) -> None:
+    r"""
     Convert a text matrix file to JSON format.
 
     Parameters:
@@ -215,23 +294,43 @@ def text_matrix_to_json(input_matrix_path: str | Path, output_matrix_path: str |
     - output_matrix_path (str | Path): Path to the output JSON matrix file
     - matrix_name (str): Name of matrix
 
-    Raises:
+    Prints:
     - FileNotFoundError: If the matrix file is not found
     - ValueError: If the file path is empty
+    - File Successfully created: If file is successfully created
 
     Example:
-    >>> chosen_matrix = "PAM70"
-    >>> matrix_input = f"src/biobase/matrices/text_matrices/{chosen_matrix}"
-    >>> matrix_output = f"src/biobase/matrices/{chosen_matrix}"
-    >>> text_matrix_to_json(matrix_input, matrix_output, chosen_matrix)
-    JSON file created at: C:\REST\OF\ABSOLUTE\PATH\src\biobase\matrices\PAM70.json
-    """
-    if not input_matrix_path:
-        raise ValueError("Empty file path provided.")
+    >>> # Get the project root directory (src/biobase)
+    >>> PROJECT_ROOT = Path(__file__).parent.parent.resolve()
 
-    input_path = Path(f"{input_matrix_path}.txt").resolve()
+    >>> # Common subdirectories
+    >>> MATRICES_DIR = PROJECT_ROOT / "biobase" / "matrices"
+    >>> TEXT_MATRICES_DIR = MATRICES_DIR / "text_matrices"
+    >>> chosen_matrix = "PAM70"
+    >>> matrix_input = TEXT_MATRICES_DIR / chosen_matrix
+    >>> matrix_output = MATRICES_DIR / chosen_matrix
+    >>> text_matrix_to_json(matrix_input, matrix_output, chosen_matrix)
+    File successfully created: JSON file created at: C:\REST\OF\ABSOLUTE\PATH\src\biobase\matrices\PAM70.json
+
+    >>> matrices_to_download = ["PAM300", "PAM400", "PAM450", "BLOSUM30", "BLOSUM85"]
+    >>> for matrix in matrices_to_download:
+    >>>     chosen_matrix = matrix
+    >>>     matrix_input = TEXT_MATRICES_DIR / chosen_matrix
+    >>>     matrix_output = MATRICES_DIR / chosen_matrix
+    >>>     text_matrix_to_json(matrix_input, matrix_output, chosen_matrix)
+    File Successfully created: JSON file created at: C:\REST\OF\ABSOLUTE\PATH\src\biobase\matrices\PAM300.json
+    File Successfully created: JSON file created at: C:\REST\OF\ABSOLUTE\PATH\src\biobase\matrices\PAM400.json
+    File Successfully created: JSON file created at: C:\REST\OF\ABSOLUTE\PATH\src\biobase\matrices\PAM450.json
+    File Successfully created: JSON file created at: C:\REST\OF\ABSOLUTE\PATH\src\biobase\matrices\BLOSUM30.json
+    File successfully created: JSON file created at: C:\REST\OF\ABSOLUTE\PATH\src\biobase\matrices\BLOSUM85.json
+    """
+
+    if not input_matrix_path:
+        print("ValueError: Empty file path provided.")
+
+    input_path = Path(f"{input_matrix_path}.txt")
     if not input_path.exists():
-        raise FileNotFoundError(f"Matrix file not found: {input_path}")
+        print(f"FileNotFoundError: Matrix file not found: {input_path}")
 
     with open(input_path) as input_file:
         raw_lines = input_file.readlines()
@@ -249,18 +348,11 @@ def text_matrix_to_json(input_matrix_path: str | Path, output_matrix_path: str |
         # Create dictionary mapping amino acids to their scores
         scoring_matrix[row_label] = dict(zip(amino_acid_labels, row_scores))
 
-    output_path = Path(f"{output_matrix_path}.json").resolve()
+    output_path = Path(f"{output_matrix_path}.json")
     with open(output_path, 'w') as output_file:
         json.dump(scoring_matrix, output_file, indent=4)
 
-    print(f"JSON file created at: {output_path}")
+    print(f"File Successfully created: JSON file created at: {output_path}")
 
 if __name__ == "__main__":
-    blosum = BLOSUM(62)
-    pam = PAM(250)
-
-    print(blosum["A"]["A"])
-    print(blosum)
-    print(pam["A"]["A"])
-    print(pam)
-    print(_Matrix.available_matrices())
+    main()
