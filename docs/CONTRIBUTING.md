@@ -29,7 +29,7 @@ If you have an idea for a new feature or enhancement, please open an issue descr
 ### Pull Requests
 To contribute code:
 
-1. **Open a new Issue** following the above mentioned guidelines
+1. **Open a new Issue** following the above-mentioned guidelines.
 2. **Fork the repository** to your own GitHub account.
 3. **Clone your fork** locally:
 ```nginx
@@ -40,7 +40,14 @@ git clone https://github.com/YOUR_USERNAME/biobase.git
 git checkout -b feature-name
 ```
 5. **Make your changes** in your local repository.
-6. **Test your changes**. Make sure all tests pass. (See Running Tests).
+6. **Run your changes** in your local environment.
+
+- Install the project as editable by going to the parent directory
+  and running the command `python -m pip install -e .` from the command line.
+- To run a specific file from the command line, run it using dot separators from the base of the project
+  - For example, to run matrix.py, use the command `python -m src.biobase.matrix`
+  - To run motif.py, use the command `python -m src.biobase.constants.analysis.motif`
+
 7. **Commit your changes** with a descriptive commit message:
 ```nginx
 git commit -m "Add feature: description of change"
@@ -51,7 +58,8 @@ git push origin feature-name
 ```
 9. **Open a Pull Request (PR)** from your branch to the main branch of the original Biobase repository.
 
-- You may need to click the `compare across forks` link under the `Compare changes` header that populates when you click `New pull request` to see your local repo fork.
+- You may need to click the `compare across forks` link under the `Compare changes` header that populates
+  when you click `New pull request` to see your local repo fork.
 
 10. **In your PR description**, include:
 
