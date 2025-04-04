@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from src.biobase.matrix import _Matrix, BLOSUM, PAM, IDENTITY, MATCH
+from biobase.matrix import _Matrix, BLOSUM, PAM, IDENTITY, MATCH
 
 # Fixtures for common test setups
 @pytest.fixture

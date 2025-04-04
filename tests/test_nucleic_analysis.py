@@ -1,5 +1,5 @@
 import pytest
-from src.biobase.constants.nucleic_acid import (
+from biobase.constants.nucleic_acid import (
     MOLECULAR_WEIGHT,
     RNA_COMPLEMENTS,
     DNA_COMPLEMENTS,
