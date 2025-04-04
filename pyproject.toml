@@ -17,6 +17,12 @@ classifiers = [
 	"Operating System :: OS Independent",
 ]
 dependencies = [
+    "pytest"
+]
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "src"
 ]
 
 [project.urls]
