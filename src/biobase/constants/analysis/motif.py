@@ -73,7 +73,7 @@ def find_motifs(sequence: str | dict[str, str], pattern: str, ext: bool = False)
 
     # Handle FASTA dictionary
     if isinstance(sequence, dict):
-        if not sequence:
+        if not sequence or any(x == "" for x in sequence.values()) or any(not isinstance(x, str) for x in sequence.values()):
             raise ValueError("The input FASTA dictionary is empty.")
 
         result_dict, invalid_ids = {}, {}
@@ -88,7 +88,7 @@ def find_motifs(sequence: str | dict[str, str], pattern: str, ext: bool = False)
             else:
                 non_matches.append(seq_id)
         return result_dict, invalid_ids, non_matches
-    return None
+    raise ValueError("The input must be a non-empty string or dictionary.")
 
 if __name__ == "__main__":
     main()

@@ -4,22 +4,25 @@ Public module variables:
 
 DNA -- a string containing DNA nucleotides
 RNA -- a string containing RNA nucleotides
-COMPLEMENTS -- a dictionary containing complements for each DNA nucleotide
+NUCLEOTIDES -- a string containing all DNA and RNA nucleotides
 NUCLEOTIDE_NAMES -- a list containing the name of each nucleotide
 MOLECULAR_WEIGHT -- a dictionary containing the molecular weights for each nucleotide
+DNA_COMPLEMENTS -- a dictionary containing complements for each DNA nucleotide
+RNA_COMPLEMENTS -- a dictionary containing complements for each RNA nucleotide
+IUPAC_NUCLEOTIDES -- a dictionary containing the nucleotide equivalent for each IUPAC code
 """
 
 DNA = 'ATCG'
 RNA = 'AUCG'
 NUCLEOTIDES = 'ATCGU'
-COMPLEMENTS = {"A":"T", "T":"A", "C":"G", "G":"C"}
 NUCLEOTIDE_NAMES = ["Adenine", "Thymine", "Cytosine", "Guanine", "Uracil"]
 MOLECULAR_WEIGHT = {"A":135.13, "T":126.12, "C":111.10, "G":151.13, "U":112.09}
 
+DNA_COMPLEMENTS = {"A":"T", "T":"A", "C":"G", "G":"C"}
 RNA_COMPLEMENTS = {"A":"U", "U":"A", "C":"G", "G":"C"}
 
 # [4]
-IUPAC_CODES = {
+IUPAC_NUCLEOTIDES = {
     "A": "A",
     "C": "C",
     "G": "G",

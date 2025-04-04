@@ -117,7 +117,7 @@ We welcome contributions! Please read our:
 
 ## Project Status
 
-### Current Version: 0.4.0-alpha
+### Current Version: 0.4.1-alpha
 
 #### Core Features
 - ✅ BLOSUM and PAM matrix implementations
