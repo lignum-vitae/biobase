@@ -45,7 +45,7 @@ git clone https://GitHub.com/YOUR_USERNAME/biobase.git
 #### 4. Keep your fork up to date with the main branch
 ```nginx
 # Add the main Biobase repo as upstream
-git remote add upstream git://GitHub.com/lignum-vitae/biobase.git
+git remote add upstream https://github.com/lignum-vitae/biobase.git
 # Get latest changes
 git fetch upstream
 # Verify your remotes
@@ -74,13 +74,21 @@ python -m src.biobase.constants.analysis.motif
 
 #### 8. Commit your changes with a descriptive commit message:
 ```nginx
-git add <filename>
-git commit -m "Add feature: description of change"
-```
-#### 9. Rebase Your Development Branch on the Latest Upstream
-```nginx
 # Gets latest changes from main biobase project if you've set up an upstream branch as detailed above
 git fetch upstream
+# We recommend individually adding each file with modifications
+git add <filename>
+# Commit files after all files with modifications have been added
+git commit -m "Add feature: description of change"
+```
+#### 🚨 Using git add .
+While `git add .` is convenient for adding all modified files, it can lead to messy commits. Consider using it only when:
+- You've reviewed all changes
+- You're certain about each modification
+- You've checked git status first
+- Your .gitignore is properly configured
+#### 9. Rebase Your Development Branch on the Latest Upstream
+```nginx
 # Make sure all is committed (or stashed) as necessary on this branch
 git rebase -i upstream/main feature-name
 ```
@@ -88,8 +96,9 @@ You may need to resolve conflicts that occur when both a file on the development
 Edit each conflicting file to resolve the differences, then continue the rebase. 
 Each file will need to be "added" to mark the conflict as resolved:
 ```nginx
-$ git add <filename>
-$ git rebase --continue
+# Resolve conflicts in each file, then:
+git add <resolved-filename>
+git rebase --continue
 ```
 #### 10. Push your branch to your fork on GitHub:
 ```nginx
