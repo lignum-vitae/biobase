@@ -52,8 +52,13 @@ git fetch upstream
 git remote
 ```
 #### 5. Create a new branch for your changes:
+##### Choose ONE of the following commands
 ```nginx
+# Creates a new branch that stays in sync with the main repository
 git checkout -b feature-name upstream/main
+
+# Checks out existing branch if you already have a branch locally
+git checkout feature-name
 ```
 #### 6. Make your changes in your local repository.
 #### 7. Run your changes in your local environment.
