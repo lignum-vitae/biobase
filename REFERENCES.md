@@ -15,3 +15,5 @@
 [7] Bienroth S, Keller W, Wahle E. Assembly of a processive messenger RNA polyadenylation complex. (1993). Poly-A Tail [link](https://pmc.ncbi.nlm.nih.gov/articles/PMC413241/)
 
 [8] Isaac Turner (Noporpoise). Scoring Matrices. (2012). [link](https://github.com/noporpoise/seq-align/tree/master/scoring)
+
+[9] Splice Site Consensus. (2025). [link](https://science.umd.edu/labs/mount/RNAinfo/consensus.html)

@@ -1,16 +1,40 @@
-"""A collection of protein constants.
+"""
+Amino Acid Constants and Methods
+
+This module provides fundamental constants and methods for protein analysis.
 
 Public module variables:
+ONE_LETTER_CODES -- string containing all amino acid one letter codes (ACDEFGHIKLMNPQRSTVWY)
+ONE_LETTER_CODES_EXT -- same as above plus selenocysteine (U) and pyrrolysine (O)
+THREE_LETTER_CODES -- set containing all amino acid three letter codes
+THREE_LETTER_CODES_EXT -- same as above plus selenocysteine (Sec) and pyrrolysine (Pyl)
+AMINO_ACID_NAMES -- set containing all amino acid full names
+AMINO_ACID_NAMES_EXT -- same as above plus selenocysteine and pyrrolysine
+MONO_MASS -- dictionary containing monoisotopic masses for each amino acid
+MONO_MASS_EXT -- same as above plus selenocysteine and pyrrolysine
+CODONS_PER_AA -- dictionary containing the number of codons per amino acid
+CODON_TABLE -- dictionary containing RNA codon to amino acid conversions
+CODONS -- list containing all possible RNA codons
 
-ONE_LETTER_CODES -- a string containing all amino acid one letter codes
-THREE_LETTER_CODES -- a list containing all amino acid three letter codes
-AMINO_ACID_NAMES -- a list containing all amino acid names
-CODONS_PER_AA -- a dictionary containing the number of CODONS that can result in specified amino acid
-CODON_TABLE -- a dictionary containing all RNA codon to amino acid conversions
-CODONS -- a list containing all CODONS
-MONO_MASS --  a dictionary containing the mass of all amino acids
-*_ext -- same as the above with the addition of selenocysteine and pyrrolysine
+Key components:
+1. Amino acid identifiers (one letter, three letter, full names)
+2. Extended amino acids (selenocysteine, pyrrolysine)
+3. Physical properties (monoisotopic masses)
+4. Genetic code (codons, codon usage)
+
+Constants are organized by:
+- Standard amino acid codes (ONE_LETTER_CODES, THREE_LETTER_CODES, AMINO_ACID_NAMES)
+- Extended amino acids (*_EXT versions include pyrrolysine and selenocysteine)
+- Physical properties (MONO_MASS, MONO_MASS_EXT)
+- Genetic code (CODONS_PER_AA, CODON_TABLE, CODONS)
+
+Notes:
+- Masses are monoisotopic (most abundant isotope)
+- Extended amino acids (U, O) are rare but naturally occurring
+- Codon usage varies between organisms
+- Stop codons are represented as 'Stop' in the codon table
 """
+
 from itertools import product
 
 ONE_LETTER_CODES = 'ACDEFGHIKLMNPQRSTVWY'

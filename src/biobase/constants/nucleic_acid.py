@@ -1,15 +1,48 @@
-"""A collection of DNA and RNA constants.
+"""
+Nucleic Acid Constants and Methods
+
+This module provides fundamental constants and methods for DNA and RNA analysis.
 
 Public module variables:
+DNA -- string containing DNA nucleotides (ATCG)
+RNA -- string containing RNA nucleotides (AUCG)
+NUCLEOTIDES -- string containing all DNA and RNA nucleotides (ATCGU)
+NUCLEOTIDE_NAMES -- list containing the name of each nucleotide
+MOLECULAR_WEIGHT -- dictionary containing molecular weights for each nucleotide
+DNA_COMPLEMENTS -- dictionary containing complements for each DNA nucleotide
+RNA_COMPLEMENTS -- dictionary containing complements for each RNA nucleotide
+IUPAC_NUCLEOTIDES -- dictionary containing nucleotide patterns for IUPAC codes
+SEQUENCE_MOTIFS -- dictionary containing common sequence motifs and their metadata
+PURINE_BASES -- string containing purine bases
+PYRIMIDINE_BASES -- string containing pyrimidine bases
+WEAK_PAIRS -- base pairs with 2 hydrogen bonds
+STRONG_PAIRS -- base pairs with 3 hydrogen bonds
+START_CODONS -- set of standard start codons
+STOP_CODONS -- set of standard stop codons
+RESTRICTION_SITES -- dictionary of common restriction enzyme recognition sequences
 
-DNA -- a string containing DNA nucleotides
-RNA -- a string containing RNA nucleotides
-NUCLEOTIDES -- a string containing all DNA and RNA nucleotides
-NUCLEOTIDE_NAMES -- a list containing the name of each nucleotide
-MOLECULAR_WEIGHT -- a dictionary containing the molecular weights for each nucleotide
-DNA_COMPLEMENTS -- a dictionary containing complements for each DNA nucleotide
-RNA_COMPLEMENTS -- a dictionary containing complements for each RNA nucleotide
-IUPAC_NUCLEOTIDES -- a dictionary containing the nucleotide equivalent for each IUPAC code
+Key components:
+1. Nucleotide sequences (DNA, RNA)
+2. Molecular properties (molecular weights, complements)
+3. IUPAC codes and their meanings
+4. Common sequence motifs and regulatory elements
+5. Structural properties (base pairing, GC content)
+6. Restriction sites and enzymes
+
+Constants are organized by:
+- Basic nucleotides (DNA, RNA, NUCLEOTIDES)
+- Molecular properties (MOLECULAR_WEIGHT)
+- Complementarity (DNA_COMPLEMENTS, RNA_COMPLEMENTS)
+- IUPAC nomenclature (IUPAC_NUCLEOTIDES)
+- Sequence motifs (KOZAK_SEQUENCE, TATA_BOX, POLY_A_SIGNAL)
+- Structural features (PURINE_BASES, PYRIMIDINE_BASES)
+- Genetic elements (START_CODONS, STOP_CODONS)
+- Restriction sites (RESTRICTION_SITES)
+
+Notes:
+- IUPAC codes allow for ambiguous base representation
+- Some sequence motifs may vary between organisms
+- Restriction sites are typically palindromic
 """
 
 DNA = 'ATCG'
@@ -41,15 +74,29 @@ IUPAC_NUCLEOTIDES = {
     "N": "[ACGTU]" # any
 }
 
-# Melting temperature constants
-GC_CONTENT_FACTOR = 41  # For GC content calculation
-SALT_CORRECTION_FACTOR = 16.6  # For salt correction
-
 # Common sequence motifs in IUPAC notation
-# Lower case letters are variable. Upper case letters are conserved.
-KOZAK_SEQUENCE = "gccgccRccAUGG"  # Consensus Kozak sequence. First gcc is of unknown significance [5]
-TATA_BOX = "TATAWAW"       # TATA box consensus [6]
-POLY_A_SIGNAL = "AAUAAA"  # Polyadenylation signal [7]
+SEQUENCE_MOTIFS = {
+    'kozak': { # [5]
+        'sequence': 'gccgccRccAUGG', # First gcc is of unknown significance
+        'description': 'Consensus Kozak sequence for translation initiation',
+    },
+    'tata_box': { # [6]
+        'sequence': 'TATAWAW',
+        'description': 'Core promoter element for transcription',
+    },
+    'polya_signal': { # [7]
+        'sequence': 'AAUAAA',
+        'description': 'Polyadenylation signal sequence',
+    },
+    'splice_donor': { # [9]
+        'sequence': 'MAG|GTRAGT',
+        'description': '5\' splice site consensus',
+    },
+    'splice_acceptor': { # [9]
+        'sequence': 'CAG|G',
+        'description': '3\' splice site consensus',
+    }
+}
 
 # DNA/RNA structure
 PURINE_BASES = "AG"
