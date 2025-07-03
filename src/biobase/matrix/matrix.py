@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+
 def main():
     blosum = BLOSUM(62)
     pam = PAM(250)
@@ -20,27 +21,46 @@ def main():
     print(MATCH.available_matrices())
     print(blosum.available_matrices())
 
+
 class _Matrix:
     matrices = {
-            "BLOSUM": [30, 35, 40, 45, 50, 55, 60, 62, 65, 70, 75, 80, 85, 90],
-            "PAM": [10, 30, 50, 60, 70, 80, 90, 100, 110, 120, 160, 170, 200, 250, 300, 400, 450, 500],
-            "IDENTITY": [-10000, 0],
-            "MATCH": [""]
-           }
+        "BLOSUM": [30, 35, 40, 45, 50, 55, 60, 62, 65, 70, 75, 80, 85, 90],
+        "PAM": [
+            10,
+            30,
+            50,
+            60,
+            70,
+            80,
+            90,
+            100,
+            110,
+            120,
+            160,
+            170,
+            200,
+            250,
+            300,
+            400,
+            450,
+            500,
+        ],
+        "IDENTITY": [-10000, 0],
+        "MATCH": [""],
+    }
     # Get the project root directory (src/biobase)
-    PROJECT_ROOT = Path(__file__).parent.parent.resolve()
+    PROJECT_ROOT = Path(__file__).parent.parent.parent.resolve()
 
     # Common subdirectories
-    MATRICES_DIR = PROJECT_ROOT / "biobase" / "matrices"
-    TEXT_MATRICES_DIR = MATRICES_DIR / "text_matrices"
+    MATRICES_DIR = PROJECT_ROOT / "biobase" / "matrix" / "matrices"
 
-    def __init__(self, matrix_folder: str | Path| None = None)->None:
+    def __init__(self, matrix_folder: str | Path | None = None) -> None:
         """
         Initialize a Matrix object with a specified matrix folder.
 
         Parameters:
         - matrix_folder (str | Path): Path to the folder containing matrix files.
-                                     Defaults to 'PROJECT_ROOT/src/biobase/matrices'
+                                     Defaults to 'PROJECT_ROOT/src/biobase/matrix/matrices'
 
         Returns:
         - None
@@ -49,13 +69,15 @@ class _Matrix:
         >>> matrix = _Matrix()  # Uses default folder
         >>> matrix = _Matrix("path/to/matrices")  # Uses custom folder
         """
-        self.folder = self.MATRICES_DIR if matrix_folder is None else Path(matrix_folder)
+        self.folder = (
+            self.MATRICES_DIR if matrix_folder is None else Path(matrix_folder)
+        )
         self.matrix_data = None
         self.matrix_name = None
         self.version = None
 
     @classmethod
-    def available_matrices(cls)->list[str]:
+    def available_matrices(cls) -> list[str]:
         """
         Get a list of all available scoring matrices.
 
@@ -66,9 +88,13 @@ class _Matrix:
         >>> _Matrix.available_matrices()
         ['BLOSUM45', 'BLOSUM50', 'BLOSUM62', 'BLOSUM80', 'BLOSUM90', 'PAM30', 'PAM70', 'PAM250']
         """
-        return [f"{name}{version}" for name, version_list in cls.matrices.items() for version in version_list]
+        return [
+            f"{name}{version}"
+            for name, version_list in cls.matrices.items()
+            for version in version_list
+        ]
 
-    def select_matrix(self, matrix_name: str, version: int)->None:
+    def select_matrix(self, matrix_name: str, version: int | str) -> None:
         """
         Select a specific scoring matrix by name and version.
 
@@ -91,9 +117,11 @@ class _Matrix:
             self.matrix_name = matrix_name
             self.version = version
             return
-        raise ValueError(f"Only {', '.join(available[:-1])}, and {available[-1]} are currently supported matrices")
+        raise ValueError(
+            f"Only {', '.join(available[:-1])}, and {available[-1]} are currently supported matrices"
+        )
 
-    def load_json_matrix(self)->None:
+    def load_json_matrix(self) -> None:
         """
         Load the selected matrix data from its JSON file.
 
@@ -109,7 +137,7 @@ class _Matrix:
         >>> matrix.load_json_matrix()  # Loads BLOSUM62.json
         """
         filename = f"{self.matrix_name}{self.version}.json"
-        json_file_path  = self.folder / filename
+        json_file_path = self.folder / filename
 
         if not json_file_path.exists():
             raise RuntimeError(f"File not found: {json_file_path}")
@@ -150,7 +178,7 @@ class _Matrix:
         sub_matrix = self.matrix_data[key]
         if isinstance(sub_matrix, dict):
             # Return the current matrix with the sub-matrix data, simulating the chained access
-            new_matrix = _Matrix.__new__(_Matrix) # Create uninitialized instance
+            new_matrix = _Matrix.__new__(_Matrix)  # Create uninitialized instance
             new_matrix.matrix_data = sub_matrix
             new_matrix.matrix_name = self.matrix_name
             new_matrix.version = self.version
@@ -173,16 +201,22 @@ class _Matrix:
         >>> str(matrix)
         'BLOSUM62 Matrix'
         """
-        return f"{self.matrix_name}{self.version} Matrix" if self.matrix_name else "No matrix selected"
+        return (
+            f"{self.matrix_name}{self.version} Matrix"
+            if self.matrix_name
+            else "No matrix selected"
+        )
+
 
 class _BaseMatrixClass(_Matrix):
-    def __init__(self, matrix_name: str, version: int, matrix_folder) -> None:
+    def __init__(self, matrix_name: str, version: int | str, matrix_folder) -> None:
         super().__init__(matrix_folder)
         self.select_matrix(matrix_name, version)
         self.load_json_matrix()
 
+
 class BLOSUM(_BaseMatrixClass):
-    def __init__(self, version: int, matrix_folder: str = None) -> None:
+    def __init__(self, version: int, matrix_folder: str | None = None) -> None:
         """
         Initialize a BLOSUM (BLOcks SUbstitution Matrix) scoring matrix.
 
@@ -207,8 +241,9 @@ class BLOSUM(_BaseMatrixClass):
         """
         super().__init__("BLOSUM", version, matrix_folder)
 
+
 class PAM(_BaseMatrixClass):
-    def __init__(self, version: int, matrix_folder: str = None) -> None:
+    def __init__(self, version: int, matrix_folder: str | None = None) -> None:
         """
         Initialize a PAM (Point Accepted Mutation) scoring matrix.
 
@@ -233,8 +268,9 @@ class PAM(_BaseMatrixClass):
         """
         super().__init__("PAM", version, matrix_folder)
 
+
 class IDENTITY(_BaseMatrixClass):
-    def __init__(self, version: int, matrix_folder: str = None) -> None:
+    def __init__(self, version: int, matrix_folder: str | None = None) -> None:
         """
         Initialize an IDENTITY scoring matrix.
 
@@ -259,8 +295,9 @@ class IDENTITY(_BaseMatrixClass):
         """
         super().__init__("IDENTITY", version, matrix_folder)
 
+
 class MATCH(_BaseMatrixClass):
-    def __init__(self, matrix_folder: str = None) -> None:
+    def __init__(self, matrix_folder: str | None = None) -> None:
         """
         Initialize a MATCH scoring matrix.
 
@@ -285,7 +322,10 @@ class MATCH(_BaseMatrixClass):
         """
         super().__init__("MATCH", "", matrix_folder)
 
-def text_matrix_to_json(input_matrix_path: str | Path , output_matrix_path: str | Path , matrix_name: str) -> None:
+
+def text_matrix_to_json(
+    input_matrix_path: str | Path, output_matrix_path: str | Path, matrix_name: str
+) -> None:
     r"""
     Convert a text matrix file to JSON format.
 
@@ -341,7 +381,7 @@ def text_matrix_to_json(input_matrix_path: str | Path , output_matrix_path: str 
     amino_acid_labels = matrix_lines[0]
 
     scoring_matrix = {}
-    for row_index, row_data in enumerate(matrix_lines[1:]):
+    for _, row_data in enumerate(matrix_lines[1:]):
         # First element is the row label, rest are scores
         row_label = row_data[0]
         row_scores = [int(score) for score in row_data[1:]]
@@ -349,10 +389,11 @@ def text_matrix_to_json(input_matrix_path: str | Path , output_matrix_path: str 
         scoring_matrix[row_label] = dict(zip(amino_acid_labels, row_scores))
 
     output_path = Path(f"{output_matrix_path}.json")
-    with open(output_path, 'w') as output_file:
+    with open(output_path, "w") as output_file:
         json.dump(scoring_matrix, output_file, indent=4)
 
     print(f"File Successfully created: JSON file created at: {output_path}")
+
 
 if __name__ == "__main__":
     main()

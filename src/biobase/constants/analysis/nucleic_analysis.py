@@ -1,6 +1,7 @@
 # internal dependencies
 from ..nucleic_acid import MOLECULAR_WEIGHT, COMPLEMENTS
 
+
 def main():
     print(Nucleotides.cumulative_molecular_weight("acgtagtgat"))
     print(Nucleotides.cumulative_molecular_weight("AATTGG"))
@@ -12,8 +13,11 @@ def main():
     print(Dna.complement_dna("acccggtccatcatcattca"))
     print(Dna.complement_dna("acccggtccatcatcattca", reverse=False))
 
+
 class Nucleotides:
-    VALID_NUCLEOTIDES = frozenset("ATCGU") # frozenset more efficient for repeated lookups
+    VALID_NUCLEOTIDES = frozenset(
+        "ATCGU"
+    )  # frozenset more efficient for repeated lookups
     nuc_molecular_weight = MOLECULAR_WEIGHT
 
     @staticmethod
@@ -42,7 +46,9 @@ class Nucleotides:
         if not isinstance(nucs, str):
             raise ValueError(f"Expected string input, got {type(nucs).__name__}")
         if is_single_nucleotide and len(nucs) != 1:
-            raise ValueError("Expected single nucleotide, got sequence of length {len(nucs)}")
+            raise ValueError(
+                "Expected single nucleotide, got sequence of length {len(nucs)}"
+            )
 
         nucs = nucs.upper()
         invalids = set(nucs) - Nucleotides.VALID_NUCLEOTIDES
@@ -97,6 +103,7 @@ class Nucleotides:
         nucs = cls._validate_nucleotide(nucs)
         return sum(cls.nuc_molecular_weight[nuc] for nuc in nucs)
 
+
 class Dna:
     VALID_DNA = frozenset("ATCG")
     complements = COMPLEMENTS
@@ -130,7 +137,7 @@ class Dna:
         invalids = set(dna_seq) - Dna.VALID_DNA
         if invalids:
             raise ValueError(f"Invalid DNA nucleotides found: {sorted(invalids)}")
- 
+
         return dna_seq
 
     @classmethod
@@ -154,7 +161,7 @@ class Dna:
         'AUCG'
         """
         dna_seq = cls._validate_dna_sequence(dna_seq)
-        return dna_seq.replace('T', 'U')
+        return dna_seq.replace("T", "U")
 
     @classmethod
     def complement_dna(cls, dna_seq: str, reverse: bool = True) -> str:
@@ -205,7 +212,7 @@ class Dna:
         100.0
         """
         sequence = cls._validate_dna_sequence(dna_seq)
-        gc_count = sequence.count('G') + sequence.count('C')
+        gc_count = sequence.count("G") + sequence.count("C")
         return (gc_count / len(sequence)) * 100 if sequence else 0.0
 
     @classmethod
@@ -232,8 +239,9 @@ class Dna:
         100.0
         """
         sequence = cls._validate_dna_sequence(dna_seq)
-        at_count = sequence.count('A') + sequence.count('T')
+        at_count = sequence.count("A") + sequence.count("T")
         return (at_count / len(sequence)) * 100 if sequence else 0.0
+
 
 if __name__ == "__main__":
     main()

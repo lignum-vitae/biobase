@@ -2,31 +2,38 @@ import pytest
 from pathlib import Path
 from biobase.matrix import _Matrix, BLOSUM, PAM, IDENTITY, MATCH
 
+
 # Fixtures for common test setups
 @pytest.fixture
 def matrix_dir():
     project_root = Path(__file__).parent.parent.resolve()
     return (project_root / "src" / "biobase" / "matrices").resolve()
 
+
 @pytest.fixture
 def blosum45():
     return BLOSUM(45)
+
 
 @pytest.fixture
 def blosum62():
     return BLOSUM(62)
 
+
 @pytest.fixture
 def pam250():
     return PAM(250)
+
 
 @pytest.fixture
 def identity():
     return IDENTITY(0)
 
+
 @pytest.fixture
 def match():
     return MATCH()
+
 
 # Base Matrix Class Tests
 class TestMatrixBase:
@@ -67,6 +74,7 @@ class TestMatrixBase:
         matrix.select_matrix("BLOSUM", 62)
         assert str(matrix) == "BLOSUM62 Matrix"
 
+
 # BLOSUM Matrix Tests
 class TestBLOSUM:
     def test_blosum_init(self, blosum62):
@@ -92,6 +100,7 @@ class TestBLOSUM:
         assert matrix.version == version
         assert matrix["A"]["A"] is not None
 
+
 # PAM Matrix Tests
 class TestPAM:
     def test_pam_init(self, pam250):
@@ -113,6 +122,7 @@ class TestPAM:
         assert matrix.version == version
         assert matrix["A"]["A"] is not None
 
+
 # IDENTITY Matrix Tests
 class TestIDENTITY:
     def test_identity_init(self, identity):
@@ -124,14 +134,12 @@ class TestIDENTITY:
         assert identity["A"]["A"] == 1  # Match
         assert identity["A"]["C"] == 0  # Mismatch
 
-    @pytest.mark.parametrize("aa1,aa2,expected", [
-        ("A", "A", 1),
-        ("C", "C", 1),
-        ("A", "C", 0),
-        ("W", "Y", 0)
-    ])
+    @pytest.mark.parametrize(
+        "aa1,aa2,expected", [("A", "A", 1), ("C", "C", 1), ("A", "C", 0), ("W", "Y", 0)]
+    )
     def test_identity_scores(self, identity, aa1, aa2, expected):
         assert identity[aa1][aa2] == expected
+
 
 # MATCH Matrix Tests
 class TestMATCH:
@@ -143,14 +151,13 @@ class TestMATCH:
         assert match["A"]["A"] == 1  # Match
         assert match["A"]["C"] == -1  # Mismatch
 
-    @pytest.mark.parametrize("aa1,aa2,expected", [
-        ("A", "A", 1),
-        ("C", "C", 1),
-        ("A", "C", -1),
-        ("W", "Y", -1)
-    ])
+    @pytest.mark.parametrize(
+        "aa1,aa2,expected",
+        [("A", "A", 1), ("C", "C", 1), ("A", "C", -1), ("W", "Y", -1)],
+    )
     def test_match_all_combinations(self, match, aa1, aa2, expected):
         assert match[aa1][aa2] == expected
+
 
 # File Loading Tests
 class TestFileLoading:
@@ -169,6 +176,7 @@ class TestFileLoading:
         matrix.select_matrix("BLOSUM", 62)
         with pytest.raises(Exception):  # Could be JSON decode error
             matrix.load_json_matrix()
+
 
 # Integration Tests
 class TestIntegration:
@@ -190,6 +198,7 @@ class TestIntegration:
         else:
             matrix = matrix_class()
         assert matrix.matrix_data is not None
+
 
 class TestAPIConsistency:
     """Ensure consistent behavior across all matrix types"""
@@ -234,6 +243,7 @@ class TestAPIConsistency:
             # Second access should return score
             assert isinstance(matrix["A"]["A"], int)
 
+
 class TestBioinformaticsIntegration:
     """Test integration with common bioinformatics workflows"""
 
@@ -270,7 +280,7 @@ class TestBioinformaticsIntegration:
                 "ARNDCEQ",
                 "ARNDCEQ",  # Identical
                 "ARNDCEK",  # One difference
-                "ARNDCWA"   # Multiple differences
+                "ARNDCWA",  # Multiple differences
             ]
 
             # Calculate conservation scores
@@ -311,6 +321,8 @@ class TestBioinformaticsIntegration:
 
         assert len(profile) == len(sequence)
         assert all(len(pos_scores) == 20 for pos_scores in profile.values())
-        assert all(isinstance(score, int)
-                  for pos_scores in profile.values()
-                  for score in pos_scores.values())
+        assert all(
+            isinstance(score, int)
+            for pos_scores in profile.values()
+            for score in pos_scores.values()
+        )

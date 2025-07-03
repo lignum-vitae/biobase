@@ -4,6 +4,7 @@ from ..amino_acid import ONE_LETTER_CODES, ONE_LETTER_CODES_EXT
 # external dependency
 import re
 
+
 def main():
     print(find_motifs("ACDEFGHIKLMNPQRSTVWY", "CDE"))
     print(find_motifs("GGGGGGGGGGGGGGGGGGGG", "CDE"))
@@ -17,11 +18,14 @@ def main():
         ">SP007": "CDEFGHCDEFKLCDEFPQRS",  # has matches for "CDE" at positions 1, 7, 13
         ">SP008": "LLLLLLLLLLLLLLLLLLLL",  # no match
         ">SP009": "KKKKKKKKKKKK123KKKKK",  # invalid: contains "1", "2", "3"
-        ">SP010": "CDEACDEBCDEFAAAAAAAA"   # has matches for "CDE" at positions 1, 5, 9
+        ">SP010": "CDEACDEBCDEFAAAAAAAA",  # has matches for "CDE" at positions 1, 5, 9
     }
     print(find_motifs(test_dict, "CDE"))
 
-def find_motifs(sequence: str | dict[str, str], pattern: str, ext: bool = False) -> list[int] | tuple[dict[str, list[int]], dict[str, set[str]], list[str]] | None:
+
+def find_motifs(
+    sequence: str | dict[str, str], pattern: str, ext: bool = False
+) -> list[int] | tuple[dict[str, list[int]], dict[str, set[str]], list[str]] | None:
     """
     Find all occurrences of a specified motif (pattern) in protein sequence(s).
 
@@ -68,19 +72,25 @@ def find_motifs(sequence: str | dict[str, str], pattern: str, ext: bool = False)
             raise ValueError("The input protein sequence is empty.")
         invalid_chars = set(sequence) - aa_codes
         if invalid_chars:
-            raise ValueError(f"Invalid protein sequence used in motif finder. Invalid characters: {sorted(invalid_chars)}")
-        return [m.start(0)+1 for m in re.finditer(f"(?={pattern})", sequence)]
+            raise ValueError(
+                f"Invalid protein sequence used in motif finder. Invalid characters: {sorted(invalid_chars)}"
+            )
+        return [m.start(0) + 1 for m in re.finditer(f"(?={pattern})", sequence)]
 
     # Handle FASTA dictionary
     if isinstance(sequence, dict):
-        if not sequence or any(x == "" for x in sequence.values()) or any(not isinstance(x, str) for x in sequence.values()):
+        if (
+            not sequence
+            or any(x == "" for x in sequence.values())
+            or any(not isinstance(x, str) for x in sequence.values())
+        ):
             raise ValueError("The input FASTA dictionary is empty.")
 
         result_dict, invalid_ids = {}, {}
         non_matches = []
         for seq_id, seq in sequence.items():
             invalid_chars = set(seq) - aa_codes
-            matches = [m.start(0)+1 for m in re.finditer(f"(?={pattern})", seq)]
+            matches = [m.start(0) + 1 for m in re.finditer(f"(?={pattern})", seq)]
             if matches:  # only include sequences with matches
                 result_dict[seq_id] = matches
             elif invalid_chars:
@@ -89,6 +99,7 @@ def find_motifs(sequence: str | dict[str, str], pattern: str, ext: bool = False)
                 non_matches.append(seq_id)
         return result_dict, invalid_ids, non_matches
     raise ValueError("The input must be a non-empty string or dictionary.")
+
 
 if __name__ == "__main__":
     main()
