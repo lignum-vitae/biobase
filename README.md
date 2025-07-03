@@ -16,10 +16,7 @@ A Python package providing standardized biological constants and scoring matrice
   - [Regular Installation](#regular-installation)
   - [Development Installation](#development-installation)
 - [Running Files](#running-files)
-- [Project Structure](#project-structure)
-  - [Core Components](#core-components)
-  - [Analysis Tools](#analysis-tools)
-  - [Data Files](#data-files)
+- [Data Files](#data-files)
 - [Project Goals](#project-goals)
 - [Contributing](#contributing)
 - [Project Status](#project-status)
@@ -29,20 +26,20 @@ A Python package providing standardized biological constants and scoring matrice
 
 #### Access amino acid properties:
 ```python
-from biobase.constants.amino_acid import ONE_LETTER_CODES, MONO_MASS
+from biobase.constants import ONE_LETTER_CODES, MONO_MASS
 print(ONE_LETTER_CODES)  # 'ACDEFGHIKLMNPQRSTVWY'
 print(MONO_MASS['A'])    # 71.037113805
 ```
 #### Use scoring matrices:
 ```python
-from biobase.matrix import BLOSUM
-blosum62 = BLOSUM(62)
+from biobase.matrix import Blosum
+blosum62 = Blosum(62)
 print(blosum62['A']['A'])  # 4
 print(blosum62['W']['C'])  # -2
 ```
 #### Analyze DNA sequences:
 ```python
-from biobase.constants.analysis.nucleic_analysis import Dna
+from biobase.analysis import Dna
 sequence = "ATCGTAGC"
 print(Dna.transcribe(sequence))         # 'AUCGUAGC'
 print(Dna.complement_dna(sequence))     # 'GCTACGAT'
@@ -50,7 +47,7 @@ print(Dna.calculate_gc_content(sequence))  # 50.0
 ```
 #### Find protein motifs:
 ```python
-from biobase.constants.analysis.motif import find_motifs
+from biobase.analysis import find_motifs
 sequence = "ACDEFGHIKLMNPQRSTVWY"
 print(find_motifs(sequence, "DEF"))  # [3]
 ```
@@ -64,8 +61,6 @@ print(find_motifs(sequence, "DEF"))  # [3]
 
 ### Regular Installation
 `pip install biobase` 
-
-**PROJECT IS NOT YET ON PYPI, SO NORMAL PIP INSTALLATION WILL NOT WORK**
 
 ### Development Installation
 Clone the repository and install in editable mode:
@@ -81,23 +76,8 @@ To ensure relative imports work correctly, always run files using the module pat
 ### Run a specific file
 python -m src.biobase.matrix
 
-## Project Structure
-
-### Core Components
-- `src/biobase/matrix.py`: Scoring matrix implementations (BLOSUM, PAM, etc.)
-- `src/biobase/constants/`: Core biological constants
-  - `amino_acid.py`: Amino acid codes, masses, and codon tables
-  - `nucleic_acid.py`: DNA/RNA constants and complementary bases
-  
-### Analysis Tools
-- `src/biobase/constants/analysis/`:
-  - `motif.py`: Protein motif search functionality
-  - `nucleic_analysis.py`: DNA/RNA sequence analysis tools
-
-### Data Files
+## Data Files
 - `src/biobase/matrices/`: Scoring matrix data stored in JSON file format
-
-For detailed documentation of each component, please refer to our [Wiki](https://github.com/lignum-vitae/biobase/wiki).
 
 ## Project Goals
 
@@ -125,27 +105,23 @@ We welcome contributions! Please read our:
 - ✅ DNA/RNA sequence analysis tools
 - ✅ Protein motif searching
 - ✅ Core biological constants
-- 🚧 Additional scoring matrices
-- 🚧 Extended amino acid properties
-- 📋 Protein structure constants
-- 📋 Enzyme and reaction constants
-- 📋 Integration with common bioinformatics tools
+- ✅ Additional scoring matrices
+- ✅ Extended amino acid properties
   
 #### Analysis Tools
 - ✅ GC content calculation
 - ✅ DNA/RNA transcription
 - ✅ DNA complementation
 - ✅ Motif finding
+- 🚧 File format parsers (FASTA, GenBank, etc.)
 - 📋 Statistical analysis tools
-- 📋 File format parsers (FASTA, GenBank, etc.)
+
 
 #### Documentation
 - ✅ Basic README
 - ✅ Code of Conduct
 - ✅ Contributing Guidelines
-- 🚧 API Documentation
-- 🚧 Wiki Pages
-- 🚧 Usage Examples
+- ✅ Usage Examples
 
 #### Development
 - 🚧 PyPI package deployment
