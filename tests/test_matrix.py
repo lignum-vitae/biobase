@@ -1,38 +1,38 @@
 import pytest
 from pathlib import Path
-from biobase.matrix import _Matrix, BLOSUM, PAM, IDENTITY, MATCH
+from biobase.matrix import _Matrix, Blosum, Pam, Identity, Match
 
 
 # Fixtures for common test setups
 @pytest.fixture
 def matrix_dir():
     project_root = Path(__file__).parent.parent.resolve()
-    return (project_root / "src" / "biobase" / "matrices").resolve()
+    return (project_root / "src" / "biobase" / "matrix" / "matrices").resolve()
 
 
 @pytest.fixture
 def blosum45():
-    return BLOSUM(45)
+    return Blosum(45)
 
 
 @pytest.fixture
 def blosum62():
-    return BLOSUM(62)
+    return Blosum(62)
 
 
 @pytest.fixture
 def pam250():
-    return PAM(250)
+    return Pam(250)
 
 
 @pytest.fixture
 def identity():
-    return IDENTITY(0)
+    return Identity(0)
 
 
 @pytest.fixture
 def match():
-    return MATCH()
+    return Match()
 
 
 # Base Matrix Class Tests
@@ -40,8 +40,9 @@ class TestMatrixBase:
     def test_init_default_folder(self):
         matrix = _Matrix()
         assert matrix.folder.name == "matrices"
-        assert matrix.folder.parent.name == "biobase"
-        assert matrix.folder.parent.parent.name == "src"
+        assert matrix.folder.parent.name == "matrix"
+        assert matrix.folder.parent.parent.name == "biobase"
+        assert matrix.folder.parent.parent.parent.name == "src"
         assert matrix.matrix_data is None
         assert matrix.matrix_name is None
         assert matrix.version is None
@@ -59,7 +60,7 @@ class TestMatrixBase:
 
     def test_select_matrix_valid(self):
         matrix = _Matrix()
-        matrix.select_matrix("BLOSUM", 62)
+        matrix.select_matrix("Blosum", 62)
         assert matrix.matrix_name == "BLOSUM"
         assert matrix.version == 62
 
@@ -71,11 +72,11 @@ class TestMatrixBase:
     def test_str_representation(self):
         matrix = _Matrix()
         assert str(matrix) == "No matrix selected"
-        matrix.select_matrix("BLOSUM", 62)
+        matrix.select_matrix("Blosum", 62)
         assert str(matrix) == "BLOSUM62 Matrix"
 
 
-# BLOSUM Matrix Tests
+# Blosum Matrix Tests
 class TestBLOSUM:
     def test_blosum_init(self, blosum62):
         assert blosum62.matrix_name == "BLOSUM"
@@ -84,7 +85,7 @@ class TestBLOSUM:
 
     def test_blosum_invalid_version(self):
         with pytest.raises(ValueError):
-            BLOSUM(999)
+            Blosum(999)
 
     def test_blosum_lookups(self, blosum62):
         assert blosum62["A"]["A"] > 0  # Match should be positive
@@ -96,12 +97,12 @@ class TestBLOSUM:
 
     @pytest.mark.parametrize("version", [45, 50, 62, 80, 90])
     def test_blosum_versions(self, version):
-        matrix = BLOSUM(version)
+        matrix = Blosum(version)
         assert matrix.version == version
         assert matrix["A"]["A"] is not None
 
 
-# PAM Matrix Tests
+# Pam Matrix Tests
 class TestPAM:
     def test_pam_init(self, pam250):
         assert pam250.matrix_name == "PAM"
@@ -110,7 +111,7 @@ class TestPAM:
 
     def test_pam_invalid_version(self):
         with pytest.raises(ValueError):
-            PAM(999)
+            Pam(999)
 
     def test_pam_lookups(self, pam250):
         assert isinstance(pam250["A"]["A"], int)
@@ -118,12 +119,12 @@ class TestPAM:
 
     @pytest.mark.parametrize("version", [30, 70, 250])
     def test_pam_versions(self, version):
-        matrix = PAM(version)
+        matrix = Pam(version)
         assert matrix.version == version
         assert matrix["A"]["A"] is not None
 
 
-# IDENTITY Matrix Tests
+# Identity Matrix Tests
 class TestIDENTITY:
     def test_identity_init(self, identity):
         assert identity.matrix_name == "IDENTITY"
@@ -141,7 +142,7 @@ class TestIDENTITY:
         assert identity[aa1][aa2] == expected
 
 
-# MATCH Matrix Tests
+# Match Matrix Tests
 class TestMATCH:
     def test_match_init(self, match):
         assert match.matrix_name == "MATCH"
@@ -163,7 +164,7 @@ class TestMATCH:
 class TestFileLoading:
     def test_missing_file(self, tmp_path):
         matrix = _Matrix(matrix_folder=tmp_path)
-        matrix.select_matrix("BLOSUM", 62)
+        matrix.select_matrix("Blosum", 62)
         with pytest.raises(RuntimeError):
             matrix.load_json_matrix()
 
@@ -173,7 +174,7 @@ class TestFileLoading:
         file_path.write_text("invalid json")
 
         matrix = _Matrix(matrix_folder=tmp_path)
-        matrix.select_matrix("BLOSUM", 62)
+        matrix.select_matrix("Blosum", 62)
         with pytest.raises(Exception):  # Could be JSON decode error
             matrix.load_json_matrix()
 
@@ -189,11 +190,12 @@ class TestIntegration:
         # Test matrix is symmetric
         assert blosum62["A"]["W"] == blosum62["W"]["A"]
 
-    @pytest.mark.parametrize("matrix_class", [BLOSUM, PAM, IDENTITY, MATCH])
+    @pytest.mark.parametrize("matrix_class", [Blosum, Pam, Identity, Match])
     def test_matrix_initialization(self, matrix_class):
-        if matrix_class in [BLOSUM, PAM]:
+        print(matrix_class.__name__)
+        if matrix_class in [Blosum, Pam]:
             matrix = matrix_class(matrix_class.matrices[matrix_class.__name__][0])
-        elif matrix_class == IDENTITY:
+        elif matrix_class == Identity:
             matrix = matrix_class(0)
         else:
             matrix = matrix_class()

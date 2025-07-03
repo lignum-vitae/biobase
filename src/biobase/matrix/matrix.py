@@ -3,10 +3,10 @@ from pathlib import Path
 
 
 def main():
-    blosum = BLOSUM(62)
-    pam = PAM(250)
-    identity0 = IDENTITY(0)
-    match = MATCH()
+    blosum = Blosum(62)
+    pam = Pam(250)
+    identity0 = Identity(0)
+    match = Match()
 
     print(blosum["A"]["A"])
     print(blosum)
@@ -18,14 +18,14 @@ def main():
     print(match["A"]["A"])
     print(match["C"]["A"])
     print(match)
-    print(MATCH.available_matrices())
+    print(Match.available_matrices())
     print(blosum.available_matrices())
 
 
 class _Matrix:
     matrices = {
-        "BLOSUM": [30, 35, 40, 45, 50, 55, 60, 62, 65, 70, 75, 80, 85, 90],
-        "PAM": [
+        "Blosum": [30, 35, 40, 45, 50, 55, 60, 62, 65, 70, 75, 80, 85, 90],
+        "Pam": [
             10,
             30,
             50,
@@ -45,8 +45,8 @@ class _Matrix:
             450,
             500,
         ],
-        "IDENTITY": [-10000, 0],
-        "MATCH": [""],
+        "Identity": [-10000, 0],
+        "Match": [""],
     }
     # Get the project root directory (src/biobase)
     PROJECT_ROOT = Path(__file__).parent.parent.parent.resolve()
@@ -89,7 +89,7 @@ class _Matrix:
         ['BLOSUM45', 'BLOSUM50', 'BLOSUM62', 'BLOSUM80', 'BLOSUM90', 'PAM30', 'PAM70', 'PAM250']
         """
         return [
-            f"{name}{version}"
+            f"{name.upper()}{version}"
             for name, version_list in cls.matrices.items()
             for version in version_list
         ]
@@ -99,7 +99,7 @@ class _Matrix:
         Select a specific scoring matrix by name and version.
 
         Parameters:
-        - matrix_name (str): Name of the matrix (e.g., "BLOSUM", "PAM")
+        - matrix_name (str): Name of the matrix (e.g., "Blosum", "Pam")
         - version (int): Version number of the matrix
 
         Raises:
@@ -107,8 +107,8 @@ class _Matrix:
 
         Example:
         >>> matrix = _Matrix()
-        >>> matrix.select_matrix("BLOSUM", 62)  # Selects BLOSUM62
-        >>> matrix.select_matrix("PAM", 999)  # raises ValueError
+        >>> matrix.select_matrix("Blosum", 62)  # Selects BLOSUM62
+        >>> matrix.select_matrix("Pam", 999)  # raises ValueError
         ValueError: Only BLOSUM45, BLOSUM50, BLOSUM62, BLOSUM80, BLOSUM90, PAM30, PAM70, and PAM250 are currently supported matrices
         """
         matrix_name = matrix_name.upper()
@@ -133,7 +133,7 @@ class _Matrix:
 
         Example:
         >>> matrix = _Matrix()
-        >>> matrix.select_matrix("BLOSUM", 62)
+        >>> matrix.select_matrix("Blosum", 62)
         >>> matrix.load_json_matrix()  # Loads BLOSUM62.json
         """
         filename = f"{self.matrix_name}{self.version}.json"
@@ -163,7 +163,7 @@ class _Matrix:
 
         Example:
         >>> matrix = _Matrix()
-        >>> matrix.select_matrix("BLOSUM", 62)
+        >>> matrix.select_matrix("Blosum", 62)
         >>> matrix.load_json_matrix()
         >>> matrix["A"]["A"]  # Get score for A-A match
         4
@@ -197,7 +197,7 @@ class _Matrix:
         >>> matrix = _Matrix()
         >>> str(matrix)
         'No matrix selected'
-        >>> matrix.select_matrix("BLOSUM", 62)
+        >>> matrix.select_matrix("Blosum", 62)
         >>> str(matrix)
         'BLOSUM62 Matrix'
         """
@@ -215,17 +215,17 @@ class _BaseMatrixClass(_Matrix):
         self.load_json_matrix()
 
 
-class BLOSUM(_BaseMatrixClass):
+class Blosum(_BaseMatrixClass):
     def __init__(self, version: int, matrix_folder: str | None = None) -> None:
         """
-        Initialize a BLOSUM (BLOcks SUbstitution Matrix) scoring matrix.
+        Initialize a Blosum (BLOcks SUbstitution Matrix) scoring matrix.
 
-        BLOSUM matrices are amino acid substitution matrices based on observed alignments.
+        Blosum matrices are amino acid substitution matrices based on observed alignments.
         Higher numbers (e.g., BLOSUM80) are designed for comparing closely related sequences,
         while lower numbers (e.g., BLOSUM45) are for more divergent sequences.
 
         Parameters:
-        - version (int): BLOSUM version number (ex. 45, 50, 62, 80, or 90)
+        - version (int): Blosum version number (ex. 45, 50, 62, 80, or 90)
         - matrix_folder (str | Path): Path to matrix files. Defaults to Matrix.default_matrix_folder
 
         Raises:
@@ -233,26 +233,26 @@ class BLOSUM(_BaseMatrixClass):
         - RuntimeError: If matrix file is not found
 
         Example:
-        >>> blosum62 = BLOSUM(62)
+        >>> blosum62 = Blosum(62)
         >>> blosum62["A"]["A"]  # Score for matching Alanine-Alanine
         4
         >>> blosum62["W"]["C"]  # Score for substituting Tryptophan with Cysteine
         -2
         """
-        super().__init__("BLOSUM", version, matrix_folder)
+        super().__init__("Blosum", version, matrix_folder)
 
 
-class PAM(_BaseMatrixClass):
+class Pam(_BaseMatrixClass):
     def __init__(self, version: int, matrix_folder: str | None = None) -> None:
         """
-        Initialize a PAM (Point Accepted Mutation) scoring matrix.
+        Initialize a Pam (Point Accepted Mutation) scoring matrix.
 
-        PAM matrices are amino acid substitution matrices based on evolutionary distance.
+        Pam matrices are amino acid substitution matrices based on evolutionary distance.
         Lower numbers (e.g., PAM30) are for closely related sequences,
         while higher numbers (e.g., PAM250) are for more divergent sequences.
 
         Parameters:
-        - version (int): PAM version number ex. (30, 70, or 250)
+        - version (int): Pam version number ex. (30, 70, or 250)
         - matrix_folder (str | Path): Path to matrix files. Defaults to Matrix.default_matrix_folder
 
         Raises:
@@ -260,48 +260,48 @@ class PAM(_BaseMatrixClass):
         - RuntimeError: If matrix file is not found
 
         Example:
-        >>> pam250 = PAM(250)
+        >>> pam250 = Pam(250)
         >>> pam250["A"]["A"]  # Score for matching Alanine-Alanine
         2
         >>> pam250["W"]["C"]  # Score for substituting Tryptophan with Cysteine
         -8
         """
-        super().__init__("PAM", version, matrix_folder)
+        super().__init__("Pam", version, matrix_folder)
 
 
-class IDENTITY(_BaseMatrixClass):
+class Identity(_BaseMatrixClass):
     def __init__(self, version: int, matrix_folder: str | None = None) -> None:
         """
-        Initialize an IDENTITY scoring matrix.
+        Initialize an Identity scoring matrix.
 
-        The IDENTITY matrix is a simple scoring matrix that gives:
+        The Identity matrix is a simple scoring matrix that gives:
         - A positive score of typically 1 for matching amino acids
         - A negative score of typically 0 for mismatching amino acids
-        This matrix treats all mismatches equally, unlike BLOSUM or PAM matrices.
+        This matrix treats all mismatches equally, unlike Blosum or Pam matrices.
 
         Parameters:
-        - version (int): IDENTITY version number (-10000, or 0)
+        - version (int): Identity version number (-10000, or 0)
         - matrix_folder (str | Path): Path to matrix files. Defaults to Matrix.default_matrix_folder
 
         Raises:
         - RuntimeError: If matrix file is not found
 
         Example:
-        >>> identity = IDENTITY(0)
+        >>> identity = Identity(0)
         >>> identity["A"]["A"]  # Score for matching Alanine-Alanine
         1
         >>> identity["W"]["C"]  # Score for any mismatch
         0
         """
-        super().__init__("IDENTITY", version, matrix_folder)
+        super().__init__("Identity", version, matrix_folder)
 
 
-class MATCH(_BaseMatrixClass):
+class Match(_BaseMatrixClass):
     def __init__(self, matrix_folder: str | None = None) -> None:
         """
-        Initialize a MATCH scoring matrix.
+        Initialize a Match scoring matrix.
 
-        The MATCH matrix is a binary scoring matrix that gives:
+        The Match matrix is a binary scoring matrix that gives:
         - A score of +1 for matching amino acids
         - A score of -1 for mismatching amino acids
         This matrix is useful for calculating sequence identity and in cases
@@ -314,13 +314,13 @@ class MATCH(_BaseMatrixClass):
         - RuntimeError: If matrix file is not found
 
         Example:
-        >>> match = MATCH()
+        >>> match = Match()
         >>> match["A"]["A"]  # Score for matching Alanine-Alanine
         1
         >>> match["W"]["C"]  # Score for any mismatch
         -1
         """
-        super().__init__("MATCH", "", matrix_folder)
+        super().__init__("Match", "", matrix_folder)
 
 
 def text_matrix_to_json(
