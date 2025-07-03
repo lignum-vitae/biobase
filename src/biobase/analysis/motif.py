@@ -1,8 +1,8 @@
-# internal dependency
-from ..amino_acid import ONE_LETTER_CODES, ONE_LETTER_CODES_EXT
-
 # external dependency
 import re
+
+# internal dependency
+from biobase.constants.amino_acid import ONE_LETTER_CODES, ONE_LETTER_CODES_EXT
 
 
 def main():
@@ -98,7 +98,7 @@ def find_motifs(
             else:
                 non_matches.append(seq_id)
         return result_dict, invalid_ids, non_matches
-    raise ValueError("The input must be a non-empty string or dictionary.")
+    raise ValueError("The input must be a non-empty string or FASTA dictionary.")
 
 
 if __name__ == "__main__":

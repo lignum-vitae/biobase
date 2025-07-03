@@ -1,5 +1,5 @@
 import pytest
-from biobase.constants.analysis.motif import find_motifs
+from biobase.analysis import find_motifs
 
 
 # Test data fixtures

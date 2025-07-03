@@ -1,5 +1,5 @@
 # internal dependencies
-from ..nucleic_acid import MOLECULAR_WEIGHT, COMPLEMENTS
+from biobase.constants.nucleic_acid import MOLECULAR_WEIGHT, DNA_COMPLEMENTS
 
 
 def main():
@@ -106,7 +106,7 @@ class Nucleotides:
 
 class Dna:
     VALID_DNA = frozenset("ATCG")
-    complements = COMPLEMENTS
+    complements = DNA_COMPLEMENTS
 
     @staticmethod
     def _validate_dna_sequence(dna_seq: str) -> str:

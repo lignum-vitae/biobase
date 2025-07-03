@@ -1,4 +1,5 @@
 import pytest
+from biobase.analysis import Dna
 from biobase.constants.nucleic_acid import (
     MOLECULAR_WEIGHT,
     RNA_COMPLEMENTS,
@@ -139,3 +140,59 @@ class TestBiologicalConsistency:
         assert MOLECULAR_WEIGHT["G"] > MOLECULAR_WEIGHT["T"]
         assert MOLECULAR_WEIGHT["A"] > MOLECULAR_WEIGHT["U"]
         assert MOLECULAR_WEIGHT["G"] > MOLECULAR_WEIGHT["U"]
+
+
+@pytest.mark.parametrize("seq, expected", [("aTcG", "ATCG")])
+def test_validate_dna_sequence_valid(seq, expected):
+    assert Dna._validate_dna_sequence(seq) == expected
+
+
+@pytest.mark.parametrize("seq", ["ATCU", "XYZ", "123", "ACGTU"])
+def test_validate_dna_sequence_invalid_chars(seq):
+    with pytest.raises(ValueError, match="Invalid DNA nucleotides"):
+        Dna._validate_dna_sequence(seq)
+
+
+@pytest.mark.parametrize(
+    "seq", ["", None]
+)  # None should raise TypeError inside isinstance check
+def test_validate_dna_sequence_empty_or_none(seq):
+    with pytest.raises(ValueError):
+        Dna._validate_dna_sequence(seq)
+
+
+def test_validate_dna_sequence_non_str():
+    with pytest.raises(ValueError, match="Expected string input"):
+        Dna._validate_dna_sequence(123)  # type: ignore[arg-type]
+
+
+def test_transcribe_basic():
+    assert Dna.transcribe("aTcG") == "AUCG"
+
+
+@pytest.mark.parametrize(
+    "seq, expected_rev, expected_no_rev",
+    [
+        ("ATCG", "CGAT", "TAGC"),
+        ("GGCCAA", "TTGGCC", "CCGGTT"),
+        ("atgc", "GCAT", "TACG"),
+    ],
+)
+def test_complement_dna(seq, expected_rev, expected_no_rev):
+    assert Dna.complement_dna(seq) == expected_rev
+    assert Dna.complement_dna(seq, reverse=False) == expected_no_rev
+
+
+def test_transcribe_invalid_input_raises():
+    with pytest.raises(ValueError):
+        Dna.transcribe("ATBX")
+
+
+def test_complement_dna_empty_raises():
+    with pytest.raises(ValueError):
+        Dna.complement_dna("")
+
+
+def test_gc_content_invalid_raises():
+    with pytest.raises(ValueError):
+        Dna.calculate_gc_content("NNNN")

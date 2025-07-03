@@ -115,6 +115,9 @@ MONO_MASS = {
     "Y": 163.063328575,
 }
 
+MONO_MASS_EXT = {"O": 237.147726925, "U": 150.953633405}
+MONO_MASS_EXT.update(MONO_MASS)
+
 CODONS = ["".join(x) for x in product("AUCG", repeat=3)]
 CODONS_PER_AA = {
     "A": 4,
@@ -207,6 +210,3 @@ CODON_TABLE = {
     "GAG": "E",
     "GGG": "G",
 }
-
-MONO_MASS_EXT = {"O": 237.147726925, "U": 150.953633405}
-MONO_MASS_EXT.update(MONO_MASS)
