@@ -1,32 +1,36 @@
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "biobase"
-version = "0.4.2"
-authors = [
-	{ name ="Andrew Hennis", email="andrew.mr.hennis@gmail.com" },
-]
+version = "0.4.4"
+authors = [{ name = "Andrew Hennis", email = "andrew.mr.hennis@gmail.com" }]
 description = "A comprehensive package of biological constants, serving as a foundational resource for biology and bioinformatics, complemented by functions to streamline related tasks."
 readme = "README.md"
 requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = ["pytest"]
 classifiers = [
-	"Programming Language :: Python :: 3",
-	"License :: OSI Approved :: MIT License",
-	"Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
 ]
-dependencies = [
-    "pytest"
-]
-
-[tool.setuptools.packages.find]
-where = ["src"]
-
-[tool.pytest.ini_options]
-pythonpath = ["src"]
-testpaths = ["tests"]
 
 [project.urls]
 Homepage = "https://github.com/lignum-vitae/biobase"
 Issues = "https://github.com/lignum-vitae/biobase/issues"
+
+[tool.hatch.metadata]
+# Use the src/ layout
+allow-direct-references = true
+
+[tool.hatch.build]
+include = ["src/biobase/**/*.json"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/biobase"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

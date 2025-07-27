@@ -1,4 +1,5 @@
 import json
+import importlib.resources
 from pathlib import Path
 
 
@@ -52,6 +53,7 @@ class _Matrix:
     PROJECT_ROOT = Path(__file__).parent.parent.parent.resolve()
 
     # Common subdirectories
+    # Ensure load_json function matches this folder layout
     MATRICES_DIR = PROJECT_ROOT / "biobase" / "matrix" / "matrices"
 
     def __init__(self, matrix_folder: str | Path | None = None) -> None:
@@ -125,7 +127,7 @@ class _Matrix:
         """
         Load the selected matrix data from its JSON file.
 
-        The matrix must be selected using select_matrix() before calling this method.
+        The matrix must be selected using select_matrix()
 
         Raises:
         - RuntimeError: If the matrix file is not found
@@ -137,13 +139,22 @@ class _Matrix:
         >>> matrix.load_json_matrix()  # Loads BLOSUM62.json
         """
         filename = f"{self.matrix_name}{self.version}.json"
-        json_file_path = self.folder / filename
+        if self.folder is not None:
+            # Load from local filesystem path (dev)
+            json_file_path = self.folder / filename
 
-        if not json_file_path.exists():
-            raise RuntimeError(f"File not found: {json_file_path}")
+            if not json_file_path.exists():
+                raise RuntimeError(f"File not found: {json_file_path}")
 
-        with open(json_file_path) as file:
-            self.matrix_data = json.load(file)
+            with open(json_file_path) as file:
+                self.matrix_data = json.load(file)
+        else:
+            # Load from package resources (pip installation)
+            package = "biobase.matrix.matrices"
+            with (
+                importlib.resources.files(package).joinpath(filename).open("r") as file
+            ):
+                self.matrix_data = json.load(file)
 
     def __getitem__(self, key: str):
         """
