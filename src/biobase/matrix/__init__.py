@@ -1,7 +1,3 @@
-from biobase.matrix import matrix
+from biobase.matrix import _Matrix, Blosum, Pam, Identity, Match
 
-_Matrix = matrix._Matrix
-Blosum = matrix.Blosum
-Pam = matrix.Pam
-Identity = matrix.Identity
-Match = matrix.Match
+__all__ = ["_Matrix", "Blosum", "Pam", "Identity", "Match"]
