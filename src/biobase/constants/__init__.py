@@ -1,4 +1,4 @@
-from . import amino_acid, nucleic_acid, rna_seq
+from biobase.constants import amino_acid, nucleic_acid, rna_seq
 
 # amino acid constants
 ONE_LETTER_CODES = amino_acid.ONE_LETTER_CODES

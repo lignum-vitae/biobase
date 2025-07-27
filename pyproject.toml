@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "biobase"
-version = "0.4.7"
+version = "0.4.8"
 authors = [{ name = "Andrew Hennis", email = "andrew.mr.hennis@gmail.com" }]
 description = "A comprehensive package of biological constants, serving as a foundational resource for biology and bioinformatics, complemented by functions to streamline related tasks."
 readme = "README.md"
@@ -25,11 +25,14 @@ Issues = "https://github.com/lignum-vitae/biobase/issues"
 # Use the src/ layout
 allow-direct-references = true
 
+[tool.hatch.build.sources]
+biobase = "src/biobase"
+
 [tool.hatch.build]
-include = ["src/biobase/**/*.json"]
+include = ["src/biobase/**/*.py", "src/biobase/**/*.json"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["biobase"]
+packages = ["src/biobase"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

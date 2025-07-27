@@ -1,4 +1,4 @@
-from . import sub_matrix
+from biobase.matrix import sub_matrix
 
 _Matrix = sub_matrix._Matrix
 Blosum = sub_matrix.Blosum
