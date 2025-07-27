@@ -1,3 +1,7 @@
-from biobase.matrix import _Matrix, Blosum, Pam, Identity, Match
+from biobase.matrix import sub_matrix
 
-__all__ = ["_Matrix", "Blosum", "Pam", "Identity", "Match"]
+_Matrix = sub_matrix._Matrix
+Blosum = sub_matrix.Blosum
+Pam = sub_matrix.Pam
+Identity = sub_matrix.Identity
+Match = sub_matrix.Match
