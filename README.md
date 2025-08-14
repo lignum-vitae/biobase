@@ -15,6 +15,7 @@ A Python package providing standardized biological constants and scoring matrice
   - [Use scoring matrices](#use-scoring-matrices)
   - [Analyze DNA sequences](#analyze-dna-sequences)
   - [Find protein motifs](#find-protein-motifs)
+  - [Parse FASTA](#parse-fasta)
 - [Requirements](#requirements)
 - [Installation](#installation)
   - [Regular Installation](#regular-installation)
@@ -67,7 +68,7 @@ print(find_motifs(sequence, "DEF"))  # [3]
 #### Parse FASTA
 
 ```python
-from biobase.read import fasta_parser
+from biobase.parser import fasta_parser
 records = fasta_parser(fasta)
 for r in records:
     print(r.id) # CAA39742.1

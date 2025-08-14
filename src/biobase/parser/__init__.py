@@ -1,4 +1,4 @@
-from biobase.read import fasta
+from biobase.parser import fasta
 
 # Fasta parser functions
 fasta_parser = fasta.fasta_parser
