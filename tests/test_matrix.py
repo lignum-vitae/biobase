@@ -240,8 +240,9 @@ class TestAPIConsistency:
         """All matrices should handle chained access consistently"""
         matrices = [blosum62, pam250, identity, match]
         for matrix in matrices:
-            # First access should return matrix-like object
+            # First access should return a dict
             assert hasattr(matrix["A"], "__getitem__")
+            assert isinstance(matrix["A"], dict)
             # Second access should return score
             assert isinstance(matrix["A"]["A"], int)
 

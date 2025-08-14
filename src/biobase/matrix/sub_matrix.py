@@ -10,6 +10,7 @@ def main():
     match = Match()
 
     print(blosum["A"]["A"])
+    print(blosum["A"])
     print(blosum)
     print(pam["A"]["A"])
     print(pam)
@@ -185,17 +186,7 @@ class _Matrix:
         if key not in self.matrix_data:
             raise KeyError(f"Key '{key}' not found in matrix")
 
-        # Handle chained indexing: if the value is a dictionary, return another Matrix-like object
-        sub_matrix = self.matrix_data[key]
-        if isinstance(sub_matrix, dict):
-            # Return the current matrix with the sub-matrix data, simulating the chained access
-            new_matrix = _Matrix.__new__(_Matrix)  # Create uninitialized instance
-            new_matrix.matrix_data = sub_matrix
-            new_matrix.matrix_name = self.matrix_name
-            new_matrix.version = self.version
-            new_matrix.folder = self.folder
-            return new_matrix
-        return sub_matrix
+        return self.matrix_data[key]
 
     def __str__(self):
         """
