@@ -6,7 +6,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![GitHub branch status](https://img.shields.io/github/checks-status/lignum-vitae/biobase/main)](https://github.com/lignum-vitae/biobase)
 
-A Python package providing standardized biological constants and scoring matrices for bioinformatics pipelines. Biobase aims to eliminate the need to repeatedly recreate common biological data structures and scoring systems in your code.
+A Python package providing standardized biological constants and scoring matrices
+for bioinformatics pipelines.
+Biobase aims to eliminate the need to repeatedly recreate common biological data
+structures and scoring systems in your code.
 
 ## Table of Contents
 
