@@ -1,7 +1,7 @@
 # standard library
 import math
 import re
-from typing import Iterator
+from typing import Iterator, overload, Literal, Tuple
 
 # internal dependencies
 from biobase.constants.nucleic_acid import DNA_COMPLEMENTS, MOLECULAR_WEIGHT
@@ -22,8 +22,11 @@ def main():
     print(Dna.entropy("ACGTACGT"))  # Equal distribution, exp value = 2.0
     print(Dna.entropy("AAACCCGG"))  # Mixed, exp value = 1.561278124459133
 
-    for s, e in Dna.find_orfs("ccatgccctaaatggggtag") :
+    for s, e in Dna.find_orfs("ccatgccctaaatggggtag"):
         print(s, e)
+
+    for s, e, orf in Dna.find_orfs("ccatgccctaaatggggtag", include_seq=True):
+        print(s, e, orf)
 
 
 class Nucleotides:
@@ -293,42 +296,85 @@ class Dna:
                 entropy -= p * math.log2(p)
         return entropy
 
-    # Compile once and use it many times 
+    # Compile once and use it many times
     _ORF_PATTERN: re.Pattern = re.compile(
-        r'atg(?:[atgc]{3})*?(?:taa|tag|tga)',
-        re.IGNORECASE
+        r"atg(?:[atgc]{3})*?(?:taa|tag|tga)", re.IGNORECASE
     )
+
+    # Overloads to satisfy type checkers
+    @overload
     @classmethod
-    # Using iterator here is more memory efficient, instead of collecting we stream the results
-    def find_orfs(cls, dna_sequence : str) -> Iterator[tuple[int, int]] :
+    def find_orfs(cls, dna_sequence: str) -> Iterator[tuple[int, int]]: ...
+
+    @overload
+    @classmethod
+    def find_orfs(
+        cls, dna_sequence: str, include_seq: Literal[False]
+    ) -> Iterator[tuple[int, int]]: ...
+
+    @overload
+    @classmethod
+    def find_orfs(
+        cls, dna_sequence: str, include_seq: Literal[True]
+    ) -> Iterator[tuple[int, int, str]]: ...
+
+    @classmethod
+    def find_orfs(cls, dna_sequence: str, include_seq: bool = False) -> Iterator[Tuple]:
         """
-        Yeilds a stream of ORFs found in DNA sequence.
-        ORF or open reading frame is defined as a spans of DNA sequences
-        between the start (ATG) and stop codons (TAA | TAG | TGA).
+        Yield all open reading frames (ORFs) found in a DNA sequence.
+
+        An ORF (Open Reading Frame) is defined as a sequence that starts with a start
+        codon (ATG) and ends with a valid stop codon (TAA, TAG, or TGA), inclusive of
+        both start and stop codons.
+
+        This function uses a compiled regular expression for efficiency and returns
+        results as an iterator for memory efficiency.
+
         Parameters:
-        - dna_sequence (str) 
-        Yeilds:
-        A tuple(start, end) for each ORF found. Indices are 0 based and 
-        follows Python slice convention (start is inclusive, end is exclusive)
+            dna_sequence (str):
+                The DNA sequence to search for ORFs. The sequence is validated before
+                processing and is case-insensitive.
+            include_seq (bool, optional):
+                If True, the yielded tuples will also include the matched ORF sequence.
+                Defaults to False.
+
+        Yields:
+            Iterator[tuple[int, int]] or Iterator[tuple[int, int, str]]:
+                - If `include_seq` is False:
+                    Yields a tuple of `(start, end)` representing the 0-based start index
+                    (inclusive) and end index (exclusive) of the ORF.
+                - If `include_seq` is True:
+                    Yields a tuple of `(start, end, orf)` where `orf` is the matched
+                    ORF sequence string in uppercase.
+
         Example:
-            >>> for s, e in Dna.find_orfs("ccatgccctaaatggggtag") :
-                    print(s,e)
-            2 11
-            11 18
-            optional, print the sequence as well
             >>> seq = "ccatgccctaaatggggtag"
-            >>> for s, e in Dna.find_orfs(seq) :
-                    print(s,e)
-            2 11 atgccctaa
-            11 18 atggggtag
-        No exceptions are raised by this function itself. However, validation
-        errors might be raised by cls._validate_dna_sequence if the input is invalid
+            >>> # Without sequences
+            >>> for start, end in Dna.find_orfs(seq):
+            ...     print(start, end)
+            2 11
+            11 20
+
+            >>> # With sequences
+            >>> for start, end, orf in Dna.find_orfs(seq, include_seq=True):
+            ...     print(start, end, orf)
+            2 11 ATGCCCTAA
+            11 20 ATGGGGTAG
+
+        Notes:
+            - This method does not raise exceptions by itself. However, invalid input
+            sequences may trigger a `ValueError` from `cls._validate_dna_sequence`.
         """
         dna_sequence = cls._validate_dna_sequence(dna_sequence)
-        for m in cls._ORF_PATTERN.finditer(dna_sequence) :
+        # Using iterator here is more memory efficient, instead of collecting we stream the results
+        for m in cls._ORF_PATTERN.finditer(dna_sequence):
+            start, end = m.span()
             # return one value at a time
-            yield m.span()
-        
+            if include_seq:
+                yield start, end, m.group()
+            else:
+                yield start, end
+
 
 if __name__ == "__main__":
     main()

@@ -60,6 +60,12 @@ print(Dna.complement(sequence))               # 'TAGCATCG'
 print(Dna.complement(sequence, reverse=True)) # 'GCTACGAT'
 print(Dna.calculate_gc_content(sequence))     # 50.0
 print(Dna.entropy(sequence))                  # 2.0
+
+seq = "ccatgccctaaatggggtag"
+for start, end, orf in Dna.find_orfs(seq, include_seq=True)
+    print(start, end, orf)
+# 2, 11, "ATGCCCTAA"
+# 11, 20, "ATGGGGTAG"
 ```
 
 #### Find protein motifs
