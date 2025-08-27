@@ -1,7 +1,7 @@
-# internal dependencies
-# For entropy calculation
+# standard library
 import math
 
+# internal dependencies
 from biobase.constants.nucleic_acid import DNA_COMPLEMENTS, MOLECULAR_WEIGHT
 
 
@@ -13,11 +13,13 @@ def main():
     print(Nucleotides.molecular_weight("u"))
 
     print(Dna.transcribe("acccggtccatcatcattca"))
-    print(Dna.complement_dna("acccggtccatcatcattca"))
-    print(Dna.complement_dna("acccggtccatcatcattca", reverse=False)) 
-    print(Dna.entropy("AAAAAAA")) # Homopolymer, exterme low entropy case, exp value = 0.0
-    print(Dna.entropy("ACGTACGT")) # Equal distribution, exp value = 2.0
-    print(Dna.entropy("AAACCCGG")) # Mixed, exp value = 1.561278124459133
+    print(Dna.complement("acccggtccatcatcattca"))
+    print(Dna.complement("acccggtccatcatcattca", reverse=False))
+    # Homopolymer, exterme low entropy case, exp value = 0.0
+    print(Dna.entropy("AAAAAAA"))
+    print(Dna.entropy("ACGTACGT"))  # Equal distribution, exp value = 2.0
+    print(Dna.entropy("AAACCCGG"))  # Mixed, exp value = 1.561278124459133
+
 
 class Nucleotides:
     VALID_NUCLEOTIDES = frozenset(
@@ -169,7 +171,7 @@ class Dna:
         return dna_seq.replace("T", "U")
 
     @classmethod
-    def complement_dna(cls, dna_seq: str, reverse: bool = True) -> str:
+    def complement(cls, dna_seq: str, reverse: bool = False) -> str:
         """
         Generate DNA complement sequence.
 
@@ -184,9 +186,9 @@ class Dna:
         - ValueError: If sequence is invalid or empty
 
         Example:
-        >>> Dna.complement_dna("ATCG")
+        >>> Dna.complement("ATCG")
         'CGAT'  # reverse complement
-        >>> Dna.complement_dna("ATCG", reverse=False)
+        >>> Dna.complement("ATCG", reverse=False)
         'TAGC'  # complement only
         """
         dna_seq = cls._validate_dna_sequence(dna_seq)
@@ -246,15 +248,42 @@ class Dna:
         sequence = cls._validate_dna_sequence(dna_seq)
         at_count = sequence.count("A") + sequence.count("T")
         return (at_count / len(sequence)) * 100 if sequence else 0.0
+
     @classmethod
     def entropy(cls, dna_sequence: str) -> float:
+        """
+        Calculate the Shannon entropy of a DNA sequence.
+
+        This function computes the Shannon entropy, which measures the
+        uncertainty or randomness in the nucleotide composition of a DNA sequence.
+        Shannon entropy is always non-negative for discrete distributions,
+        with 0 indicating a completely uniform sequence
+        and higher values indicating more diversity.
+
+        Parameters:
+        - dna_sequence (str): A DNA sequence string
+
+        Returns:
+        - float: The Shannon entropy of the sequence
+
+        Raises:
+        - ValueError: If the sequence is invalid or empty
+
+        Example:
+        >>> entropy("AAAAAAA")
+        0.0
+        >>> entropy("ACGTACGT")
+        2.0
+        >>> entropy("AAACCCGG")
+        1.561278124459133
+        """
         dna_sequence = cls._validate_dna_sequence(dna_sequence)
         # Calculate the proportion of bases in the sequence
         counts = [dna_sequence.count(nuc) for nuc in cls.VALID_DNA]
         seq_length = len(dna_sequence)
         entropy = 0
-        for count in counts : 
-            if count > 0 : # Avoid log(0) because it is undefined
+        for count in counts:
+            if count > 0:  # Avoid log(0) because it is undefined
                 p = count / seq_length
                 entropy -= p * math.log2(p)
         return entropy

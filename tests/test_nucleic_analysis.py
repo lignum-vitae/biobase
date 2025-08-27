@@ -142,6 +142,33 @@ class TestBiologicalConsistency:
         assert MOLECULAR_WEIGHT["G"] > MOLECULAR_WEIGHT["U"]
 
 
+class TestEntropy:
+    """Tests for Entropy"""
+
+    def test_invalid_inputs(self):
+        """Test error with non-nucleotide characters"""
+        with pytest.raises(ValueError):
+            Dna.entropy("ZZZZZZZZZ")
+
+    def test_empty_sequence(self):
+        """Tests empty input"""
+        with pytest.raises(ValueError):
+            Dna.entropy("")
+
+    def test_expected_values(self):
+        """Test that actual output matches expected"""
+        test_cases = [
+            ("AAAAAAA", 0.0),
+            ("ACGTACGT", 2.0),
+            ("AAACCCGG", 1.561278124459133),
+            ("AGCTAGCTA", 1.975),
+            ("ATCGTAGC", 2.0),
+        ]
+
+        for seq, expected in test_cases:
+            assert Dna.entropy(seq) == pytest.approx(expected, abs=1e-3)
+
+
 @pytest.mark.parametrize("seq, expected", [("aTcG", "ATCG")])
 def test_validate_dna_sequence_valid(seq, expected):
     assert Dna._validate_dna_sequence(seq) == expected
@@ -179,8 +206,8 @@ def test_transcribe_basic():
     ],
 )
 def test_complement_dna(seq, expected_rev, expected_no_rev):
-    assert Dna.complement_dna(seq) == expected_rev
-    assert Dna.complement_dna(seq, reverse=False) == expected_no_rev
+    assert Dna.complement(seq, reverse=True) == expected_rev
+    assert Dna.complement(seq) == expected_no_rev
 
 
 def test_transcribe_invalid_input_raises():
@@ -190,7 +217,7 @@ def test_transcribe_invalid_input_raises():
 
 def test_complement_dna_empty_raises():
     with pytest.raises(ValueError):
-        Dna.complement_dna("")
+        Dna.complement("")
 
 
 def test_gc_content_invalid_raises():
