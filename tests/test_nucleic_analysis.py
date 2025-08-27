@@ -169,6 +169,22 @@ class TestEntropy:
             assert Dna.entropy(seq) == pytest.approx(expected, abs=1e-3)
 
 
+class TestFindOrfs:
+    """Test Dna class' find orf method"""
+
+    def test_find_orfs_no_seq(self):
+        seq = "ccatgccctaaatggggtag"
+        results = list(Dna.find_orfs(seq))
+        expected = [(2, 11), (11, 20)]
+        assert results == expected
+
+    def test_find_orfs_w_seq(self):
+        seq = "ccatgccctaaatggggtag"
+        results = list(Dna.find_orfs(seq, include_seq=True))
+        expected = [(2, 11, "ATGCCCTAA"), (11, 20, "ATGGGGTAG")]
+        assert results == expected
+
+
 @pytest.mark.parametrize("seq, expected", [("aTcG", "ATCG")])
 def test_validate_dna_sequence_valid(seq, expected):
     assert Dna._validate_dna_sequence(seq) == expected
