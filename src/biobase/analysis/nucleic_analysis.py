@@ -1,5 +1,8 @@
 # internal dependencies
-from biobase.constants.nucleic_acid import MOLECULAR_WEIGHT, DNA_COMPLEMENTS
+# For entropy calculation
+import math
+
+from biobase.constants.nucleic_acid import DNA_COMPLEMENTS, MOLECULAR_WEIGHT
 
 
 def main():
@@ -11,8 +14,10 @@ def main():
 
     print(Dna.transcribe("acccggtccatcatcattca"))
     print(Dna.complement_dna("acccggtccatcatcattca"))
-    print(Dna.complement_dna("acccggtccatcatcattca", reverse=False))
-
+    print(Dna.complement_dna("acccggtccatcatcattca", reverse=False)) 
+    print(Dna.entropy("AAAAAAA")) # Homopolymer, exterme low entropy case, exp value = 0.0
+    print(Dna.entropy("ACGTACGT")) # Equal distribution, exp value = 2.0
+    print(Dna.entropy("AAACCCGG")) # Mixed, exp value = 1.561278124459133
 
 class Nucleotides:
     VALID_NUCLEOTIDES = frozenset(
@@ -241,6 +246,18 @@ class Dna:
         sequence = cls._validate_dna_sequence(dna_seq)
         at_count = sequence.count("A") + sequence.count("T")
         return (at_count / len(sequence)) * 100 if sequence else 0.0
+    @classmethod
+    def entropy(cls, dna_sequence: str) -> float:
+        dna_sequence = cls._validate_dna_sequence(dna_sequence)
+        # Calculate the proportion of bases in the sequence
+        counts = [dna_sequence.count(nuc) for nuc in cls.VALID_DNA]
+        seq_length = len(dna_sequence)
+        entropy = 0
+        for count in counts : 
+            if count > 0 : # Avoid log(0) because it is undefined
+                p = count / seq_length
+                entropy -= p * math.log2(p)
+        return entropy
 
 
 if __name__ == "__main__":
