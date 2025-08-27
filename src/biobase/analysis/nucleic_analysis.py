@@ -1,5 +1,7 @@
 # standard library
 import math
+import re
+from typing import Iterator
 
 # internal dependencies
 from biobase.constants.nucleic_acid import DNA_COMPLEMENTS, MOLECULAR_WEIGHT
@@ -19,6 +21,9 @@ def main():
     print(Dna.entropy("AAAAAAA"))
     print(Dna.entropy("ACGTACGT"))  # Equal distribution, exp value = 2.0
     print(Dna.entropy("AAACCCGG"))  # Mixed, exp value = 1.561278124459133
+
+    for s, e in Dna.find_orfs("ccatgccctaaatggggtag") :
+        print(s, e)
 
 
 class Nucleotides:
@@ -288,6 +293,42 @@ class Dna:
                 entropy -= p * math.log2(p)
         return entropy
 
+    # Compile once and use it many times 
+    _ORF_PATTERN: re.Pattern = re.compile(
+        r'atg(?:[atgc]{3})*?(?:taa|tag|tga)',
+        re.IGNORECASE
+    )
+    @classmethod
+    # Using iterator here is more memory efficient, instead of collecting we stream the results
+    def find_orfs(cls, dna_sequence : str) -> Iterator[tuple[int, int]] :
+        """
+        Yeilds a stream of ORFs found in DNA sequence.
+        ORF or open reading frame is defined as a spans of DNA sequences
+        between the start (ATG) and stop codons (TAA | TAG | TGA).
+        Parameters:
+        - dna_sequence (str) 
+        Yeilds:
+        A tuple(start, end) for each ORF found. Indices are 0 based and 
+        follows Python slice convention (start is inclusive, end is exclusive)
+        Example:
+            >>> for s, e in Dna.find_orfs("ccatgccctaaatggggtag") :
+                    print(s,e)
+            2 11
+            11 18
+            optional, print the sequence as well
+            >>> seq = "ccatgccctaaatggggtag"
+            >>> for s, e in Dna.find_orfs(seq) :
+                    print(s,e)
+            2 11 atgccctaa
+            11 18 atggggtag
+        No exceptions are raised by this function itself. However, validation
+        errors might be raised by cls._validate_dna_sequence if the input is invalid
+        """
+        dna_sequence = cls._validate_dna_sequence(dna_sequence)
+        for m in cls._ORF_PATTERN.finditer(dna_sequence) :
+            # return one value at a time
+            yield m.span()
+        
 
 if __name__ == "__main__":
     main()
