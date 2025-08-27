@@ -55,9 +55,11 @@ print(blosum62['W']['C'])  # -2
 ```python
 from biobase.analysis import Dna
 sequence = "ATCGTAGC"
-print(Dna.transcribe(sequence))         # 'AUCGUAGC'
-print(Dna.complement_dna(sequence))     # 'GCTACGAT'
-print(Dna.calculate_gc_content(sequence))  # 50.0
+print(Dna.transcribe(sequence))               # 'AUCGUAGC'
+print(Dna.complement(sequence))               # 'TAGCATCG'
+print(Dna.complement(sequence, reverse=True)) # 'GCTACGAT'
+print(Dna.calculate_gc_content(sequence))     # 50.0
+print(Dna.entropy(sequence))                  # 2.0
 ```
 
 #### Find protein motifs
@@ -128,52 +130,9 @@ We welcome contributions! Please read our:
 - [Code of Conduct](https://github.com/lignum-vitae/biobase/blob/main/docs/CODE_OF_CONDUCT.md)
 - [Contribution Guidelines](https://github.com/lignum-vitae/biobase/blob/main/docs/CONTRIBUTING.md)
 
-## Project Status
-
-### Current Version: 0.4.1-alpha
-
-#### Core Features
-
-- ✅ BLOSUM and PAM matrix implementations
-- ✅ Basic amino acid constants and conversions
-- ✅ DNA/RNA sequence analysis tools
-- ✅ Protein motif searching
-- ✅ Core biological constants
-- ✅ Additional scoring matrices
-- ✅ Extended amino acid properties
-
-#### Analysis Tools
-
-- ✅ GC content calculation
-- ✅ DNA/RNA transcription
-- ✅ DNA complementation
-- ✅ Motif finding
-- 🚧 File format parsers (FASTA, GenBank, etc.)
-- 📋 Statistical analysis tools
-
-#### Documentation
-
-- ✅ Basic README
-- ✅ Code of Conduct
-- ✅ Contributing Guidelines
-- ✅ Usage Examples
-
-#### Development
-
-- ✅ PyPI package deployment
-- 🚧 CI/CD Pipeline
-- 🚧 Code Coverage
-- 📋 Automated Releases
-
-### Legend
-
-- ✅ Complete
-- 🚧 In Progress
-- 📋 Planned
-
 ### Stability
 
-This project is in the alpha stage. APIs may change without warning until version 1.0.0.
+This project is in the beta stage. APIs may change without warning until version 1.0.0.
 
 ## License
 
