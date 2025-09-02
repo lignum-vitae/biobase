@@ -10,3 +10,6 @@ dist/
 
 # text matrices
 text_matrices/
+
+# Egg info folder
+*.egg-info/

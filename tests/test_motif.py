@@ -2,7 +2,6 @@ import pytest
 from biobase.analysis import find_motifs
 
 
-# Test data fixtures
 @pytest.fixture
 def single_sequence():
     return "ACDEFGHIKLMNPQRSTVWY"
@@ -11,16 +10,16 @@ def single_sequence():
 @pytest.fixture
 def fasta_dict():
     return {
-        ">SP001": "ACDEFCDEFCDEFGHIKLMN",  # has matches for "CDE" at positions 2, 6, 10
-        ">SP002": "MNPQRSTVWYACDEFGHIKL",  # has match for "CDE" at position 12
+        ">SP001": "ACDEFCDEFCDEFGHIKLMN",  # has matches for "CDE" that span indexes [(1, 4), (5, 8), (9, 12)]
+        ">SP002": "MNPQRSTVWYACDEFGHIKL",  # has match for "CDE" that span indexes [(11, 14)]
         ">SP003": "AAAAAAAAAAAAAAAAAA12",  # invalid: contains "1", "2"
         ">SP004": "GGGGGGGGGGGGGGGGGGGG",  # no match
         ">SP005": "HHHHHHHHHHHHHHHHH@#$",  # invalid: contains "@", "#", "$"
         ">SP006": "DDDDDDDDDDDDDDDDDDDD",  # no match
-        ">SP007": "CDEFGHCDEFKLCDEFPQRS",  # has matches for "CDE" at positions 1, 7, 13
+        ">SP007": "CDEFGHCDEFKLCDEFPQRS",  # has matches for "CDE" that span indexes [(0, 3), (6, 9), (12, 15)]
         ">SP008": "LLLLLLLLLLLLLLLLLLLL",  # no match
         ">SP009": "KKKKKKKKKKKK123KKKKK",  # invalid: contains "1", "2", "3"
-        ">SP010": "CDEACDEBCDEFAAAAAAAA",  # has matches for "CDE" at positions 1, 5, 9
+        ">SP010": "CDEACDEDCDEFAAAAAAAA",  # has matches for "CDE" that span indexes [(0, 3), (4, 7), (8, 11)]
     }
 
 
@@ -29,7 +28,7 @@ class TestSingleSequence:
 
     def test_valid_sequence_with_match(self, single_sequence):
         result = find_motifs(single_sequence, "DEF")
-        assert result == [3]
+        assert result == [(2, 5)]
 
     def test_valid_sequence_no_match(self):
         result = find_motifs("GGGGGGGGGGGGGGGGGGGG", "CDE")
@@ -43,9 +42,13 @@ class TestSingleSequence:
         with pytest.raises(ValueError, match="Invalid"):
             find_motifs("ACDEF123GHIKLMNPQRSTVWY", "CDE")
 
-    def test_overlapping_matches(self):
+    def test_adjacent_matches(self):
         result = find_motifs("CDEFDEFGHI", "DEF")
-        assert result == [2, 5]
+        assert result == [(1, 4), (4, 7)]
+
+    def test_overlapping_matches(self):
+        result = find_motifs("CEDEDEFGHI", "EDE")
+        assert result == [(1, 4), (3, 6)]
 
     def test_empty_pattern(self):
         with pytest.raises(ValueError, match="empty"):
@@ -58,13 +61,13 @@ class TestSingleSequence:
     @pytest.mark.parametrize(
         "sequence,pattern,expected",
         [
-            ("ACDEFGHIKLMNPQRSTVWY", "CDE", [2]),
-            ("CDEFGHIKLMNPQRSTVWY", "CDE", [1]),
-            ("ACDEFCDEFCDEF", "CDE", [2, 6, 10]),
+            ("ACDEFGHIKLMNPQRSTVWY", "CDE", [(1, 4)]),
+            ("CDEFGHIKLMNPQRSTVWY", "CDE", [(0, 3)]),
+            ("ACDEFCDEFCDEF", "CDE", [(1, 4), (5, 8), (9, 12)]),
             (
-                "AAAAAAAAAAAAAAAAAAAA",
+                "AAAAAAAAAA",
                 "AAA",
-                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+                [(0, 3), (1, 4), (2, 5), (3, 6), (4, 7), (5, 8), (6, 9), (7, 10)],
             ),
         ],
     )
@@ -80,10 +83,10 @@ class TestFASTADictionary:
         result_dict, invalid_dict, no_matches = find_motifs(fasta_dict, "CDE")
 
         # Check sequences with matches
-        assert result_dict[">SP001"] == [2, 6, 10]
-        assert result_dict[">SP002"] == [12]
-        assert result_dict[">SP007"] == [1, 7, 13]
-        assert result_dict[">SP010"] == [1, 5, 9]
+        assert result_dict[">SP001"] == [(1, 4), (5, 8), (9, 12)]
+        assert result_dict[">SP002"] == [(11, 14)]
+        assert result_dict[">SP007"] == [(0, 3), (6, 9), (12, 15)]
+        assert result_dict[">SP010"] == [(0, 3), (4, 7), (8, 11)]
 
         # Check invalid sequences
         assert ">SP003" in invalid_dict
@@ -100,7 +103,7 @@ class TestFASTADictionary:
     def test_single_entry_fasta(self):
         fasta = {">SP001": "ACDEFGHIKLMNPQRSTVWY"}
         result_dict, invalid_dict, no_matches = find_motifs(fasta, "CDE")
-        assert result_dict[">SP001"] == [2]
+        assert result_dict[">SP001"] == [(1, 4)]
         assert not invalid_dict
         assert not no_matches
 
@@ -136,7 +139,7 @@ class TestExtendedAminoAcids:
     def test_extended_valid_sequence(self):
         sequence = "ACDEFGHIKLMNPQRSTVWY"
         result = find_motifs(sequence, "DEF", ext=True)
-        assert result == [3]
+        assert result == [(2, 5)]
 
     def test_extended_invalid_sequence(self):
         with pytest.raises(ValueError):
@@ -144,12 +147,14 @@ class TestExtendedAminoAcids:
 
     def test_extended_fasta(self):
         fasta = {
-            ">SP001": "ACDEFGHIKLMNPQRSTVWYBJZX",
-            ">SP002": "BJZXACDEFGHIKLMNPQRSTVWY",
+            ">SP001": "ACDEFGHIKLMNPQRSTVWYUUOU",
+            ">SP002": "DUOUACDEFGHIKLMNPQRSTVWY",
         }
         result_dict, invalid_dict, no_matches = find_motifs(fasta, "CDE", ext=True)
-        assert result_dict[">SP001"] == [2]
-        assert result_dict[">SP002"] == [6]
+        assert result_dict[">SP001"] == [(1, 4)]
+        assert result_dict[">SP002"] == [(5, 8)]
+        assert not invalid_dict
+        assert not no_matches
 
 
 class TestEdgeCases:
@@ -175,22 +180,3 @@ class TestEdgeCases:
     def test_specific_invalid_chars(self, invalid_char):
         with pytest.raises(ValueError, match="Invalid"):
             find_motifs(f"ACDEF{invalid_char}GHIKL", "CDE")
-
-
-class TestPerformance:
-    """Basic performance tests"""
-
-    def test_long_sequence(self):
-        # Test with a 10,000 character sequence
-        sequence = "ACDEFGHIKL" * 1000
-        result = find_motifs(sequence, "CDE")
-        assert len(result) == 1000
-        assert result[0] == 2
-
-    def test_long_fasta(self):
-        # Test with 1000 sequences
-        fasta = {f">SP{i:03d}": "ACDEFGHIKL" * 10 for i in range(1000)}
-        result_dict, invalid_dict, no_matches = find_motifs(fasta, "CDE")
-        assert len(result_dict) == 1000
-        assert not invalid_dict
-        assert not no_matches

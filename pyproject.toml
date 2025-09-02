@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "biobase"
-version = "0.6.0"
+version = "0.7.0"
 authors = [{ name = "Andrew Hennis", email = "andrew.mr.hennis@gmail.com" }]
 description = "A comprehensive package of biological constants, serving as a foundational resource for biology and bioinformatics, complemented by functions to streamline related tasks."
 readme = "README.md"
