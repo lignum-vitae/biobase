@@ -9,23 +9,35 @@ def main():
     print(find_motifs("ACDEFGHIKLMNPQRSTVWY", "CDE"))
     print(find_motifs("GGGGGGGGGGGGGGGGGGGG", "CDE"))
     test_dict = {
-        ">SP001": "ACDEFCDEFCDEFGHIKLMN",  # has matches for "CDE" at positions 2, 6, 10
-        ">SP002": "MNPQRSTVWYACDEFGHIKL",  # has match for "CDE" at position 12
+        ">SP001": "ACDEFCDEFCDEFGHIKLMN",  # has matches for "CDE" that span indexes [(1, 4), (5, 8), (9, 12)]
+        ">SP002": "MNPQRSTVWYACDEFGHIKL",  # has match for "CDE" that span indexes [(11, 14)]
         ">SP003": "AAAAAAAAAAAAAAAAAA12",  # invalid: contains "1", "2"
         ">SP004": "GGGGGGGGGGGGGGGGGGGG",  # no match
         ">SP005": "HHHHHHHHHHHHHHHHH@#$",  # invalid: contains "@", "#", "$"
         ">SP006": "DDDDDDDDDDDDDDDDDDDD",  # no match
-        ">SP007": "CDEFGHCDEFKLCDEFPQRS",  # has matches for "CDE" at positions 1, 7, 13
+        ">SP007": "CDEFGHCDEFKLCDEFPQRS",  # has matches for "CDE" that span indexes [(0, 3), (6, 9), (12, 15)]
         ">SP008": "LLLLLLLLLLLLLLLLLLLL",  # no match
         ">SP009": "KKKKKKKKKKKK123KKKKK",  # invalid: contains "1", "2", "3"
-        ">SP010": "CDEACDEBCDEFAAAAAAAA",  # has matches for "CDE" at positions 1, 5, 9
+        ">SP010": "CDEACDEDCDEFAAAAAAAA",  # has matches for "CDE" that span indexes [(0, 3), (4, 7), (8, 11)]
     }
-    print(find_motifs(test_dict, "CDE"))
+    matched, invalid, non_match = find_motifs(test_dict, "CDE")
+    print("Matches:")
+    for seq, matches in matched.items():
+        print(f"{seq}")
+        print(f"{"".join([f"{match[0]} to {match[1]}\n" for match in matches])}")
+    print(
+        f"Invalid sequences:\n{"".join([f"{seq}: {invs}\n" for seq, invs in invalid.items()])}"
+    )
+    print(f"Sequences without matches:\n{"".join([f"- {nm}\n" for nm in non_match])}")
 
 
 def find_motifs(
     sequence: str | dict[str, str], pattern: str, ext: bool = False
-) -> list[int] | tuple[dict[str, list[int]], dict[str, set[str]], list[str]] | None:
+) -> (
+    list[tuple[int, ...]]
+    | tuple[dict[str, list[tuple[int, ...]]], dict[str, set[str]], list[str]]
+    | None
+):
     """
     Find all occurrences of a specified motif (pattern) in protein sequence(s).
 
@@ -43,10 +55,12 @@ def find_motifs(
 
     Returns:
     - For single sequence (str input):
-        list[int]: A list of 1-based start positions where the motif is found
+        list[tuple[int, ...]]: A list of tuples of 0-based start and stop indexes where the motif is found
+        Start index is inclusive, end index is exclusive
     - For FASTA dictionary (dict input):
         tuple containing:
-        - dict[str, list[int]]: Dictionary mapping sequence IDs to lists of motif positions
+        - dict[str, list[tuple[int, ...]]: Dictionary mapping sequence IDs to lists of motif indexes
+        Start index is inclusive, end index is exclusive
         - dict[str, set[str]]: Dictionary mapping sequence IDs to sets of invalid characters found
         - list[str]: List of sequence IDs that had no matches (but were valid sequences)
 
@@ -57,9 +71,10 @@ def find_motifs(
 
     Examples:
     >>> find_motifs("ACDEFGHIKLMNPQRSTVWY", "CDE")
-    [2]
-    >>> find_motifs({"P12345": "ACDEFGHIKLMNPQRSTVWY"}, "CDE")
-    {"P12345": [2]}
+    [(1, 4)]
+    >>> matches, _, _ = find_motifs({"P12345": "ACDEFGHIKLMNPQRSTVWY"}, "CDE")
+    >>> matches
+    {"P12345": [(1, 4)]}
     """
     if not isinstance(pattern, str) or not pattern:
         raise ValueError("The pattern must be a non-empty string.")
@@ -75,7 +90,7 @@ def find_motifs(
             raise ValueError(
                 f"Invalid protein sequence used in motif finder. Invalid characters: {sorted(invalid_chars)}"
             )
-        return [m.start(0) + 1 for m in re.finditer(f"(?={pattern})", sequence)]
+        return [m.span(1) for m in re.finditer(f"(?=({pattern}))", sequence)]
 
     # Handle FASTA dictionary
     if isinstance(sequence, dict):
@@ -90,11 +105,11 @@ def find_motifs(
         non_matches = []
         for seq_id, seq in sequence.items():
             invalid_chars = set(seq) - aa_codes
-            matches = [m.start(0) + 1 for m in re.finditer(f"(?={pattern})", seq)]
-            if matches:  # only include sequences with matches
-                result_dict[seq_id] = matches
-            elif invalid_chars:
+            matches = [m.span(1) for m in re.finditer(f"(?=({pattern}))", seq)]
+            if invalid_chars:
                 invalid_ids[seq_id] = invalid_chars
+            elif matches:  # only include sequences with matches
+                result_dict[seq_id] = matches
             else:
                 non_matches.append(seq_id)
         return result_dict, invalid_ids, non_matches

@@ -38,7 +38,6 @@ structures and scoring systems in your code.
 from biobase.constants import ONE_LETTER_CODES, MONO_MASS
 print(ONE_LETTER_CODES)  # 'ACDEFGHIKLMNPQRSTVWY'
 print(MONO_MASS['A'])    # 71.037113805
-`FastaRecord``
 ```
 
 #### Use scoring matrices
@@ -73,7 +72,57 @@ for start, end, orf in Dna.find_orfs(seq, include_seq=True)
 ```python
 from biobase.analysis import find_motifs
 sequence = "ACDEFGHIKLMNPQRSTVWY"
-print(find_motifs(sequence, "DEF"))  # [3]
+print(find_motifs(sequence, "DEF"))
+# [(1, 4)]
+
+test_dict = {
+    ">SP001": "ACDEFCDEFCDEFGHIKLMN",  # has matches for "CDE" that span indexes [(1, 4), (5, 8), (9, 12)]
+    ">SP002": "MNPQRSTVWYACDEFGHIKL",  # has match for "CDE" that span indexes [(11, 14)]
+    ">SP003": "AAAAAAAAAAAAAAAAAA12",  # invalid: contains "1", "2"
+    ">SP004": "GGGGGGGGGGGGGGGGGGGG",  # no match
+    ">SP005": "HHHHHHHHHHHHHHHHH@#$",  # invalid: contains "@", "#", "$"
+    ">SP006": "DDDDDDDDDDDDDDDDDDDD",  # no match
+    ">SP007": "CDEFGHCDEFKLCDEFPQRS",  # has matches for "CDE" that span indexes [(0, 3), (6, 9), (12, 15)]
+    ">SP008": "LLLLLLLLLLLLLLLLLLLL",  # no match
+    ">SP009": "KKKKKKKKKKKK123KKKKK",  # invalid: contains "1", "2", "3"
+    ">SP010": "CDEACDEDCDEFAAAAAAAA",  # has matches for "CDE" that span indexes [(0, 3), (4, 7), (8, 11)]
+}
+matched, invalid, non_match = find_motifs(test_dict, "CDE")
+print("Matches:")
+for seq, matches in matched.items():
+    print(f"{seq}")
+    print(f"{"".join([f"{match[0]} to {match[1]}\n" for match in matches])}")
+print(f"Invalid sequences:\n{"".join([f"{seq}: {invs}\n" for seq, invs in invalid.items()])}")
+print(f"Sequences without matches:\n{"".join([f"- {nm}\n" for nm in non_match])}")
+
+# Matches:
+# >SP001
+# 1 to 4
+# 5 to 8
+# 9 to 12
+
+# >SP002
+# 11 to 14
+
+# >SP007
+# 0 to 3
+# 6 to 9
+# 12 to 15
+
+# >SP010
+# 0 to 3
+# 4 to 7
+# 8 to 11
+
+# Invalid sequences:
+# >SP003: {'2', '1'}
+# >SP005: {'$', '@', '#'}
+# >SP009: {'2', '1', '3'}
+
+# Sequences without matches:
+# - >SP004
+# - >SP006
+# - >SP008
 ```
 
 #### Parse FASTA
