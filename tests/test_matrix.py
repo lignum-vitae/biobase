@@ -3,7 +3,6 @@ from pathlib import Path
 from biobase.matrix import _Matrix, Blosum, Pam, Identity, Match
 
 
-# Fixtures for common test setups
 @pytest.fixture
 def matrix_dir():
     project_root = Path(__file__).parent.parent.resolve()

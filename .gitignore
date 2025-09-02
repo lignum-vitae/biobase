@@ -11,5 +11,5 @@ dist/
 # text matrices
 text_matrices/
 
-# Egg info
+# Egg info folder
 *.egg-info/

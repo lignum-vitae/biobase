@@ -76,6 +76,10 @@ def find_motifs(
     >>> matches
     {"P12345": [(1, 4)]}
     """
+    # To future devs:
+    # m.span(1) returns the span for the first capture group
+    # Removing the 1 will break the end index of span by returning a 0-width range so start = end
+
     if not isinstance(pattern, str) or not pattern:
         raise ValueError("The pattern must be a non-empty string.")
 
