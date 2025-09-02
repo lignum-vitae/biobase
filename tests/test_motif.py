@@ -2,7 +2,6 @@ import pytest
 from biobase.analysis import find_motifs
 
 
-# Test data fixtures
 @pytest.fixture
 def single_sequence():
     return "ACDEFGHIKLMNPQRSTVWY"
