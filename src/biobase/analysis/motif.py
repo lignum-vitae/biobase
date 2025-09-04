@@ -6,29 +6,7 @@ from biobase.constants.amino_acid import ONE_LETTER_CODES, ONE_LETTER_CODES_EXT
 
 
 def main():
-    print(find_motifs("ACDEFGHIKLMNPQRSTVWY", "CDE"))
-    print(find_motifs("GGGGGGGGGGGGGGGGGGGG", "CDE"))
-    test_dict = {
-        ">SP001": "ACDEFCDEFCDEFGHIKLMN",  # has matches for "CDE" that span indexes [(1, 4), (5, 8), (9, 12)]
-        ">SP002": "MNPQRSTVWYACDEFGHIKL",  # has match for "CDE" that span indexes [(11, 14)]
-        ">SP003": "AAAAAAAAAAAAAAAAAA12",  # invalid: contains "1", "2"
-        ">SP004": "GGGGGGGGGGGGGGGGGGGG",  # no match
-        ">SP005": "HHHHHHHHHHHHHHHHH@#$",  # invalid: contains "@", "#", "$"
-        ">SP006": "DDDDDDDDDDDDDDDDDDDD",  # no match
-        ">SP007": "CDEFGHCDEFKLCDEFPQRS",  # has matches for "CDE" that span indexes [(0, 3), (6, 9), (12, 15)]
-        ">SP008": "LLLLLLLLLLLLLLLLLLLL",  # no match
-        ">SP009": "KKKKKKKKKKKK123KKKKK",  # invalid: contains "1", "2", "3"
-        ">SP010": "CDEACDEDCDEFAAAAAAAA",  # has matches for "CDE" that span indexes [(0, 3), (4, 7), (8, 11)]
-    }
-    matched, invalid, non_match = find_motifs(test_dict, "CDE")
-    print("Matches:")
-    for seq, matches in matched.items():
-        print(f"{seq}")
-        print(f"{"".join([f"{match[0]} to {match[1]}\n" for match in matches])}")
-    print(
-        f"Invalid sequences:\n{"".join([f"{seq}: {invs}\n" for seq, invs in invalid.items()])}"
-    )
-    print(f"Sequences without matches:\n{"".join([f"- {nm}\n" for nm in non_match])}")
+    pass
 
 
 def find_motifs(
