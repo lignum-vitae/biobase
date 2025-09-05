@@ -24,12 +24,13 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
+    - name: Update pip, linters, and testing framework
       run: |
         python -m pip install --upgrade pip
         python -m pip install flake8 pytest
-        python -m pip install -e .
-        if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+    - name: Install project and dependencies
+      run: |
+        python -m pip install -e . --no-binary .
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
