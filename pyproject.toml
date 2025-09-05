@@ -4,13 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "biobase"
-version = "0.7.0"
+version = "0.7.1"
 authors = [{ name = "Andrew Hennis", email = "andrew.mr.hennis@gmail.com" }]
 description = "A comprehensive package of biological constants, serving as a foundational resource for biology and bioinformatics, complemented by functions to streamline related tasks."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-dependencies = ["pytest"]
+dependencies = ["pytest", "numpy"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
