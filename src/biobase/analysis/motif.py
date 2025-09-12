@@ -1,13 +1,12 @@
-# external dependency
+# standard library
 import re
 
 # internal dependency
-from biobase.constants.amino_acid import ONE_LETTER_CODES, ONE_LETTER_CODES_EXT
+from biobase.constants import ONE_LETTER_CODES, ONE_LETTER_CODES_EXT
 
 
 def main():
     pass
-
 
 def find_motifs(
     sequence: str | dict[str, str], pattern: str, ext: bool = False
