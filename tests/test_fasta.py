@@ -1,6 +1,6 @@
 import pytest
 
-from biobase.parser import fasta_parser, fasta_file_parser
+from biobase.parser import FastaParser, FastaFileParser, fasta_parser, fasta_file_parser
 
 SAMPLE_FASTA = """>CAA39742.1 cytochrome b (mitochondrion) [Sus scrofa]
 MTNIRKSHPLMKIINNAFIDLPAPSNISSWWNFGSLLGICLILQILTGLFLAMHYTSDTTTAFSSVTHIC
@@ -8,6 +8,23 @@ MTNIRKSHPLMKIINNAFIDLPAPSNISSWWNFGSLLGICLILQILTGLFLAMHYTSDTTTAFSSVTHIC
 >BAA85863.1 cytochrome b, partial (mitochondrion) [Rattus rattus]
 MTNIRKSHPLIKIINHSFIDLPAPSNISSWWNFGSLLGVCLMVQIITGLFLAMHYTSDTLTAFSSVTHIC
 """
+
+
+def test_fasta_parser_class_multi_record():
+    records = list(FastaParser(SAMPLE_FASTA))
+    assert len(records) == 2
+
+    # Test first record
+    r1 = records[0]
+    assert r1.id == "CAA39742.1"
+    assert r1.name == "cytochrome b (mitochondrion) [Sus scrofa]"
+    assert r1.seq.startswith("MTNIRKSHPLMKIINNAF")
+
+    # Test second record
+    r2 = records[1]
+    assert r2.id == "BAA85863.1"
+    assert r2.name == "cytochrome b, partial (mitochondrion) [Rattus rattus]"
+    assert r2.seq.startswith("MTNIRKSHPLIKIINHSF")
 
 
 def test_fasta_parser_multi_record():
@@ -46,6 +63,17 @@ MEEPQSDPSV"""
     assert r.id == "NP_000257"
     assert r.name == "TP53 protein [Homo sapiens]"
     assert r.seq == "MEEPQSDPSV"
+
+
+def test_fasta_file_parser_class(tmp_path):
+    # Create a temporary FASTA file
+    fasta_file = tmp_path / "test.fasta"
+    fasta_file.write_text(SAMPLE_FASTA)
+
+    records = list(FastaFileParser(str(fasta_file)))
+    assert len(records) == 2
+    assert records[0].id == "CAA39742.1"
+    assert records[1].id == "BAA85863.1"
 
 
 def test_fasta_file_parser(tmp_path):
