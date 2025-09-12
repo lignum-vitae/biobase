@@ -1,14 +1,15 @@
-# Standard library
+# Stndard library
 from typing import Iterator
 
+# Third-party dependencies
 import numpy as np
 
-# Internal dependencies 
-from ..analysis.nucleic_analysis import Dna
+# Internal dependencies
+from biobase.analysis import Dna
 
 
 def main() -> None:
-    toy = """@2fa9ee19-5c51-4281-abdd-eac8663f9b49 runid=f53ee40429765e7817081d4bcdee6c1199c2f91d sampleid=18S_amplicon read=109831 ch=33 start_time=2019-09-12T12:05:03Z
+    fastq_seq = """@2fa9ee19-5c51-4281-abdd-eac8663f9b49 runid=f53ee40429765e7817081d4bcdee6c1199c2f91d sampleid=18S_amplicon read=109831 ch=33 start_time=2019-09-12T12:05:03Z
     CGGTAGCCAGCTGCGTTCAGTATGGAAGATTTGATTTGTTTAGCGATCGCCATACTACCGTGACAAGAAAGTTGTCAGTCTTTGTGACTTGCCTGTCGCTCTATCTTCCAGACTCCTTGGTCCGTGTTCAATCCCGGTAGTAGCGACGGGCGGTGTATGTATTATCAGCGCAACAGAAACAAAGACACC
     +
     +&&-&%$%%$$$#)33&0$&%$''*''%$#%$%#+-5/---*&&%$%&())(&$#&,'))5769*+..*&(+28./#&1228956:7674';:;80.8>;91;>?B=%.**==?(/'($$$$*'&'**%&/));807;3A=;88>=?9498++0%"%%%%'#&5/($0.$2%&0'))*'%**&)(.%&&
@@ -28,38 +29,33 @@ def main() -> None:
     CGGTGTACTTCGTTCCAGCTAGATTTGGGTGCATGACCATACCGTGACAAGAAAGTTGTCGGTATCTTTGTGTTTCTGTTGGTGCTGATATTGCCGCACCGCCCGTCGCTACACCGATTGTTCTGTTGGTCTTGAAACACGGACCAGGGTCTAGAGCAG
     +
     %$&'$&'&&'0,42%*$&&%$%$#$)$*+,'($&))(*$%$%'-8644(()-&'%&*'')%*('579:?.*,9:+)1-9.'(7491:7,(52.11'7;:<===E@;>448,,(%*.''*,%&$-.;<:;66138/**,2?8<:**'%&)%&#$&&,,'&"""
-    fastq : FastqParser = FastqParser(toy)
+    fastq : FastqParser = FastqParser(fastq_seq)
     print(f"Total reads: {fastq.count_reads()}")
     for read in fastq:
         print(read)
-        print(" GC%:", read.gc_content())
         print(" AvgQ:", read.average_quality())
         print(" Fasta:\n", read.convert_to_fasta())
-        
 
 
-class Read:
+class FastqRecord:
     def __init__(self, identifier: str, sequence: str, separator:str, quality:str) -> None:
         # Validation is done at the file level
         self.identifier = identifier
         self.sequence = sequence
         self.separator = separator
         self.quality = quality
-    
+
     # Behavior in case of print or repr
     def __repr__(self) -> str:
-        return f"<Read {self.identifier} len={len(self.sequence)}"
-    
-    # Read level utility 
+        return f"<FastqRecord {self.identifier} len={len(self.sequence)}"
+
+    # FastqRecord level utility
     def length(self) -> int:
         return len(self.sequence)
-    
-    def gc_content(self) -> float:
-        return Dna.calculate_gc_content(self.sequence)
-    
+
     def convert_to_fasta(self) -> str:
         return f">{self.identifier}\n{self.sequence}"
-    
+
     def phred_scores(self) -> np.ndarray:
         return np.fromiter((ord(ch) - 33 for ch in  self.quality), dtype=np.int16)
 
@@ -72,7 +68,7 @@ class FastqFile:
     def __init__(self, filepath:str) -> None:
         self.filepath = filepath
 
-    def __iter__(self) -> Iterator[Read]:
+    def __iter__(self) -> Iterator[FastqRecord]:
         with open(self.filepath, 'r') as f:
             for line_number, line in enumerate(f, start=1):
                 line = line.strip()
@@ -94,12 +90,12 @@ class FastqFile:
                     separator = line.strip()
                 elif pos == 0:
                     read_quality = line.strip()
-                    yield Read(read_identifier, nucleotide_sequence, separator, read_quality)
-    
+                    yield FastqRecord(read_identifier, nucleotide_sequence, separator, read_quality)
+
     # Operations on all reads
     def count_reads(self) -> int:
         return sum(1 for _ in self)
-    def filter_reads(self, min_avg_quality: float) -> Iterator[Read]:
+    def filter_reads(self, min_avg_quality: float) -> Iterator[FastqRecord]:
         for read in self :
             if read.average_quality() >= min_avg_quality:
                 yield read
@@ -120,7 +116,7 @@ class FastqParser:
     def __init__(self, reads:str) -> None:
         self.reads = reads
 
-    def __iter__(self) -> Iterator[Read]:
+    def __iter__(self) -> Iterator[FastqRecord]:
         for line_number, line in enumerate(self.reads.splitlines(), start=1):
             line = line.strip()
             # Keep track on where we are on the file
@@ -141,12 +137,12 @@ class FastqParser:
                 separator = line.strip()
             elif pos == 0:
                 read_quality = line.strip()
-                yield Read(read_identifier, nucleotide_sequence, separator, read_quality)
+                yield FastqRecord(read_identifier, nucleotide_sequence, separator, read_quality)
 
     # Operations on all reads
     def count_reads(self) -> int:
         return sum(1 for _ in self)
-    def filter_reads(self, min_avg_quality: float) -> Iterator[Read]:
+    def filter_reads(self, min_avg_quality: float) -> Iterator[FastqRecord]:
         for read in self :
             if read.average_quality() >= min_avg_quality:
                 yield read
@@ -164,5 +160,3 @@ class FastqParser:
 
 if __name__ == "__main__":
     main()
-
-

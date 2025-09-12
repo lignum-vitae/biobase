@@ -4,7 +4,7 @@ import re
 from typing import Iterator, overload, Literal, Tuple
 
 # internal dependencies
-from biobase.constants.nucleic_acid import DNA_COMPLEMENTS, MOLECULAR_WEIGHT
+from biobase.constants import DNA_COMPLEMENTS, MOLECULAR_WEIGHT
 
 
 def main():

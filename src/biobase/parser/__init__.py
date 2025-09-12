@@ -6,10 +6,10 @@ fasta_file_parser = fasta.fasta_file_parser
 
 # Fastq parser functions
 FastqParser = fastq.FastqParser
-FatqFile = fastq.FastqFile
+FastqFile = fastq.FastqFile
 
 # Record Class
 FastaRecord = fasta.FastaRecord
 
-# Fastq read
-Read = fastq.Read
+# Fastq read class
+FastqRecord = fastq.FastqRecord
