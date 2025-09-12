@@ -121,12 +121,18 @@ def test_fastq_file_parser(tmp_path):
     assert r2.length() == len(r2.seq)
 
 
-def test_to_fasta(tmp_path):
+def test_to_fasta():
+    parser = FastqParser(SAMPLE_FASTQ)
+    fasta_record_arr = parser.to_fasta()
+
+    assert "2fa9ee19-5c51" in fasta_record_arr[0].id
+    assert "1f9ca490-2f25" in fasta_record_arr[1].id
+
+def test_to_fasta_file(tmp_path):
     out_path = tmp_path / "out.fasta"
     # Get the first record
     parser = FastqParser(SAMPLE_FASTQ)
-    parser.to_fasta(out_path)
-
+    parser.to_fasta_file(out_path)
     fasta_content = out_path.read_text()
     # make sure the headers of two reads is there
     assert ">2fa9ee19-5c51" in fasta_content

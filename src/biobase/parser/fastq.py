@@ -6,6 +6,7 @@ import numpy as np
 
 # Internal dependencies
 from biobase.analysis import Dna
+from .fasta import FastaRecord
 
 
 def main() -> None:
@@ -111,10 +112,17 @@ class FastqFileParser:
             if read.average_quality() >= min_avg_quality:
                 yield read
 
-    def to_fasta(self, out_path: str) -> None:
-        with open(out_path, "w") as o:
+    def to_fasta(self) -> list[FastaRecord]:
+        return list(self.to_fasta_iter())
+
+    def to_fasta_iter(self) -> list[FastaRecord]:
+        for read in self:
+            yield FastaRecord(read.id, read.seq)
+
+    def to_fasta_file(self, out_path: str) -> None:
+        with open(out_path, "w") as file:
             for read in self:
-                o.write(read.convert_to_fasta() + "\n")
+                file.write(read.convert_to_fasta() + "\n")
 
     def read_lengths(self) -> np.ndarray:
         lengths: list[int] = []
@@ -167,10 +175,17 @@ class FastqParser:
             if read.average_quality() >= min_avg_quality:
                 yield read
 
-    def to_fasta(self, out_path: str) -> None:
-        with open(out_path, "w") as o:
+    def to_fasta(self) -> list[FastaRecord]:
+        return list(self.to_fasta_iter())
+
+    def to_fasta_iter(self) -> list[FastaRecord]:
+        for read in self:
+            yield FastaRecord(read.id, read.seq)
+
+    def to_fasta_file(self, out_path: str) -> None:
+        with open(out_path, "w") as file:
             for read in self:
-                o.write(read.convert_to_fasta() + "\n")
+                file.write(read.convert_to_fasta() + "\n")
 
     def read_lengths(self) -> np.ndarray:
         lengths: list[int] = []
