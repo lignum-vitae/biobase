@@ -128,6 +128,7 @@ def test_to_fasta():
     assert "2fa9ee19-5c51" in fasta_record_arr[0].id
     assert "1f9ca490-2f25" in fasta_record_arr[1].id
 
+
 def test_to_fasta_file(tmp_path):
     out_path = tmp_path / "out.fasta"
     # Get the first record
