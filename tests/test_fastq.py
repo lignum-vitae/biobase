@@ -18,11 +18,11 @@ def test_fastq_parser_multi_record():
     assert len(records) == 2
     # Record 1
     r1 = records[0]
-    assert r1.identifier.startswith("2fa9ee19-5c51")
-    assert "runid=" in r1.identifier
-    assert r1.sequence.startswith("CGGTAGCCAGCTGCG")
-    assert len(r1.sequence) == len(r1.quality)  # always true for FASTQ
-    assert r1.length() == len(r1.sequence)
+    assert r1.id.startswith("2fa9ee19-5c51")
+    assert "runid=" in r1.id
+    assert r1.seq.startswith("CGGTAGCCAGCTGCG")
+    assert len(r1.seq) == len(r1.quality)  # always true for FASTQ
+    assert r1.length() == len(r1.seq)
 
     # Check phred conversion doesn’t crash
     scores1 = r1.phred_scores()
@@ -32,10 +32,10 @@ def test_fastq_parser_multi_record():
 
     # Record 2
     r2 = records[1]
-    assert r2.identifier.startswith("1f9ca490-2f25")
-    assert r2.sequence.startswith("GATGCATACTTCGTT")
-    assert len(r2.sequence) == len(r2.quality)
-    assert r2.length() == len(r2.sequence)
+    assert r2.id.startswith("1f9ca490-2f25")
+    assert r2.seq.startswith("GATGCATACTTCGTT")
+    assert len(r2.seq) == len(r2.quality)
+    assert r2.length() == len(r2.seq)
 
     scores2 = r2.phred_scores()
     assert isinstance(scores2, np.ndarray)
@@ -44,11 +44,11 @@ def test_fastq_parser_multi_record():
 
 def test_fastq_record_and_repr():
     # repr and print have the same behavior for the FastqParser - only repr is defined in the class
-    # They include the id of the read (first line without @) and the read sequence length
+    # They include the id of the read (first line without @) and the read seq length
     record = list(FastqParser(SAMPLE_FASTQ))[0]
     s = str(record)
     r = repr(record)
-    assert record.identifier in s, r
+    assert record.id in s, r
     assert str(record.length()) in s, r
 
 def test_fastq_parser_single_record():
@@ -59,9 +59,8 @@ CGGTAGCCAGCTGCGTTCAGTATG
     records = list(FastqParser(single_fastq))
     assert len(records) == 1
     r : FastqRecord = records[0]
-    assert r.identifier == "2fa9ee19-5c51-4281-abdd-eac86"
-    assert r.sequence == "CGGTAGCCAGCTGCGTTCAGTATG"
-
+    assert r.id == "2fa9ee19-5c51-4281-abdd-eac86"
+    assert r.seq == "CGGTAGCCAGCTGCGTTCAGTATG"
 def test_fastq_file_parser(tmp_path):
     fastq_file = tmp_path / "test.fastq"
     fastq_file.write_text(SAMPLE_FASTQ)
@@ -70,21 +69,20 @@ def test_fastq_file_parser(tmp_path):
     assert len(records) == 2
     # Record 1
     r1 = records[0]
-    assert r1.identifier.startswith("2fa9ee19-5c51")
-    assert "runid=" in r1.identifier
+    assert r1.id.startswith("2fa9ee19-5c51")
+    assert "runid=" in r1.id
     # Record 2
     r2 = records[1]
-    assert r2.identifier.startswith("1f9ca490-2f25")
-    assert r2.sequence.startswith("GATGCATACTTCGTT")
-    assert len(r2.sequence) == len(r2.quality)
-    assert r2.length() == len(r2.sequence)
+    assert r2.id.startswith("1f9ca490-2f25")
+    assert r2.seq.startswith("GATGCATACTTCGTT")
+    assert len(r2.seq) == len(r2.quality)
+    assert r2.length() == len(r2.seq)
 
 def test_to_fasta(tmp_path):
     out_path = tmp_path / "out.fasta"
     # Get the first record
     parser = FastqParser(SAMPLE_FASTQ)
     parser.to_fasta(out_path)
-
     fasta_content = out_path.read_text()
     # make sure the headers of two reads is there
     assert ">2fa9ee19-5c51" in fasta_content

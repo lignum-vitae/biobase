@@ -38,23 +38,23 @@ def main() -> None:
 
 
 class FastqRecord:
-    def __init__(self, identifier: str, sequence: str, separator:str, quality:str) -> None:
+    def __init__(self, id: str, seq: str, separator:str, quality:str) -> None:
         # Validation is done at the file level
-        self.identifier = identifier
-        self.sequence = sequence
+        self.id = id
+        self.seq = seq
         self.separator = separator
         self.quality = quality
 
     # Behavior in case of print or repr
     def __repr__(self) -> str:
-        return f"<FastqRecord {self.identifier} len={len(self.sequence)}"
+        return f"<FastqRecord {self.id} len={len(self.seq)}"
 
     # FastqRecord level utility
     def length(self) -> int:
-        return len(self.sequence)
+        return len(self.seq)
 
     def convert_to_fasta(self) -> str:
-        return f">{self.identifier}\n{self.sequence}"
+        return f">{self.id}\n{self.seq}"
 
     def phred_scores(self) -> np.ndarray:
         return np.fromiter((ord(ch) - 33 for ch in  self.quality), dtype=np.int16)
