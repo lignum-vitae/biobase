@@ -69,7 +69,38 @@ class FastqRecord:
         return sum(scores) / scores.size if scores.size > 0 else 0.0
 
 
-class FastqFileParser:
+class FastqParserBase:
+    # Operations on all reads
+    def count_reads(self) -> int:
+        return sum(1 for _ in self)
+
+    def filter_reads(self, min_avg_quality: float) -> Iterator[FastqRecord]:
+        for read in self:
+            if read.average_quality() >= min_avg_quality:
+                yield read
+
+    def to_fasta(self) -> list[FastaRecord]:
+        return list(self.to_fasta_iter())
+
+    def to_fasta_iter(self) -> Iterator[FastaRecord]:
+        for read in self:
+            yield FastaRecord(read.id, read.seq)
+
+    def to_fasta_file(self, out_path: str) -> None:
+        with open(out_path, "w") as file:
+            for read in self:
+                file.write(read.convert_to_fasta() + "\n")
+
+    def read_lengths(self) -> np.ndarray:
+        lengths: list[int] = []
+        for read in self:
+            lengths.append(read.length())
+        # Using numpy arrays as the return because it will be more efficient for the further analysis
+        lengths_array: np.ndarray = np.array(lengths)
+        return lengths_array
+
+
+class FastqFileParser(FastqParserBase):
     def __init__(self, filepath: str) -> None:
         self.filepath = filepath
 
@@ -103,37 +134,26 @@ class FastqFileParser:
                         read_identifier, nucleotide_sequence, separator, read_quality
                     )
 
-    # Operations on all reads
     def count_reads(self) -> int:
-        return sum(1 for _ in self)
+        return super().count_reads()
 
     def filter_reads(self, min_avg_quality: float) -> Iterator[FastqRecord]:
-        for read in self:
-            if read.average_quality() >= min_avg_quality:
-                yield read
+        yield from super().filter_reads(min_avg_quality)
 
     def to_fasta(self) -> list[FastaRecord]:
-        return list(self.to_fasta_iter())
+        return super().to_fasta()
 
-    def to_fasta_iter(self) -> list[FastaRecord]:
-        for read in self:
-            yield FastaRecord(read.id, read.seq)
+    def to_fasta_iter(self) -> Iterator[FastaRecord]:
+        yield from super().to_fasta_iter()
 
     def to_fasta_file(self, out_path: str) -> None:
-        with open(out_path, "w") as file:
-            for read in self:
-                file.write(read.convert_to_fasta() + "\n")
+        return super().to_fasta_file(out_path)
 
     def read_lengths(self) -> np.ndarray:
-        lengths: list[int] = []
-        for read in self:
-            lengths.append(read.length())
-        # Using numpy arrays as the return because it will be more efficient for the further analysis
-        lengths_array: np.ndarray = np.array(lengths)
-        return lengths_array
+        return super().read_lengths()
 
 
-class FastqParser:
+class FastqParser(FastqParserBase):
     def __init__(self, reads: str) -> None:
         self.reads = reads
 
@@ -166,34 +186,23 @@ class FastqParser:
                     read_identifier, nucleotide_sequence, separator, read_quality
                 )
 
-    # Operations on all reads
     def count_reads(self) -> int:
-        return sum(1 for _ in self)
+        return super().count_reads()
 
     def filter_reads(self, min_avg_quality: float) -> Iterator[FastqRecord]:
-        for read in self:
-            if read.average_quality() >= min_avg_quality:
-                yield read
+        yield from super().filter_reads(min_avg_quality)
 
     def to_fasta(self) -> list[FastaRecord]:
-        return list(self.to_fasta_iter())
+        return super().to_fasta()
 
-    def to_fasta_iter(self) -> list[FastaRecord]:
-        for read in self:
-            yield FastaRecord(read.id, read.seq)
+    def to_fasta_iter(self) -> Iterator[FastaRecord]:
+        yield from super().to_fasta_iter()
 
     def to_fasta_file(self, out_path: str) -> None:
-        with open(out_path, "w") as file:
-            for read in self:
-                file.write(read.convert_to_fasta() + "\n")
+        return super().to_fasta_file(out_path)
 
     def read_lengths(self) -> np.ndarray:
-        lengths: list[int] = []
-        for read in self:
-            lengths.append(read.length())
-        # Using numpy arrays as the return because it will be more efficient for the further analysis
-        lengths_array: np.ndarray = np.array(lengths)
-        return lengths_array
+        return super().read_lengths()
 
 
 def fastq_parser(fastq: str) -> list[FastqRecord]:

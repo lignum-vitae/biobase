@@ -27,7 +27,7 @@ GQLASISYFSIILILMPISGIIEDKMLKWN
 
 
 class FastaRecord:
-    def __init__(self, header, sequence):
+    def __init__(self, header, sequence) -> None:
         parts = header.lstrip(">").split(maxsplit=1)
         self.id = parts[0]
         self.name = parts[1] if len(parts) > 1 else ""
