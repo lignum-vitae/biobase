@@ -14,6 +14,4 @@ fastq_file_parser = fastq.fastq_file_parser
 
 # Record Class
 FastaRecord = fasta.FastaRecord
-
-# Fastq read class
 FastqRecord = fastq.FastqRecord

@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+from pytest import approx
 
 from biobase.parser import (
     FastqFileParser,
@@ -148,3 +149,22 @@ def test_invalid_fastq_header_raises_value_eror():
     parser = FastqParser(bad_fasta)
     with pytest.raises(ValueError):
         list(parser)
+
+
+def test_count_reads():
+    parser = FastqParser(SAMPLE_FASTQ)
+    reads = parser.count_reads()
+
+    assert reads == 2
+
+
+def test_filter_reads():
+    parser = FastqParser(SAMPLE_FASTQ)
+    reads = list(parser)
+
+    expected_val = [11.9788, 13.0787]
+    for read, expected in zip(reads, expected_val):
+        assert read.average_quality() == approx(expected, abs=1e-4)
+
+    filtered_reads = list(parser.filter_reads(12))
+    assert len(filtered_reads) == 1

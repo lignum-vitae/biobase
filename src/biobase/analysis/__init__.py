@@ -1,4 +1,4 @@
-from biobase.analysis import motif, nucleic_analysis
+from biobase.analysis import nucleic_analysis, motif
 
 # Motif functions
 find_motifs = motif.find_motifs
