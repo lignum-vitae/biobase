@@ -49,7 +49,7 @@ print(blosum62['A']['A'])  # 4
 print(blosum62['W']['C'])  # -2
 ```
 
-#### Analyze DNA sequences
+#### Analyse DNA sequences
 
 ```python
 from biobase.analysis import Dna
@@ -58,6 +58,7 @@ print(Dna.transcribe(sequence))               # 'AUCGUAGC'
 print(Dna.complement(sequence))               # 'TAGCATCG'
 print(Dna.complement(sequence, reverse=True)) # 'GCTACGAT'
 print(Dna.calculate_gc_content(sequence))     # 50.0
+print(Dna.calculate_at_content(sequence))     # 50.0
 print(Dna.entropy(sequence))                  # 2.0
 
 seq = "ccatgccctaaatggggtag"
@@ -65,6 +66,15 @@ for start, end, orf in Dna.find_orfs(seq, include_seq=True)
     print(start, end, orf)
 # 2, 11, "ATGCCCTAA"
 # 11, 20, "ATGGGGTAG"
+```
+
+#### Analyse Nucleotides
+
+```python
+from biobase.analysis import Nucleotides
+
+print(Nucleotides.molecular_weight("A"))               # 135.13
+print(Nucleotides.cumulative_molecular_weight("ATCG")) # 523.48
 ```
 
 #### Find protein motifs
@@ -128,11 +138,44 @@ print(f"Sequences without matches:\n{"".join([f"- {nm}\n" for nm in non_match])}
 #### Parse FASTA
 
 ```python
-from biobase.parser import fasta_parser
+from biobase.parser import FastaParser, fasta_parser
+fasta = """>CAA39742.1 cytochrome b (mitochondrion) [Sus scrofa]
+MTNIRKSHPLMKIINNAFIDLPAPSNISSWWNFGSLLGICLILQILTGLFLAMHYTSDTTTAFSSVTHIC"""
+
+# Class that yields generator
+records = list(FastaParser(fasta))
+r: FastaRecord = records[0]
+print(r.id) # CAA39742.1
+print(r.seq) # MTNIRKSHPLMKIINNAFIDLPAPSNISSWWNFGSLLGICLILQILTGLFLAMHYTSDTTTAFSSVTHIC
+
+# Function that returns list
 records = fasta_parser(fasta)
 for r in records:
     print(r.id) # CAA39742.1
-    print(r.seq) # MTNIRKSHPLMKII...
+    print(r.seq) # MTNIRKSHPLMKIINNAFIDLPAPSNISSWWNFGSLLGICLILQILTGLFLAMHYTSDTTTAFSSVTHIC
+
+```
+
+#### Parse FASTQ
+
+```python
+from biobase.parser import FastqParser, fastq_parser
+fastq = """@2fa9ee19-5c51-4281-abdd-eac86
+CGGTAGCCAGCTGCGTTCAGTATG
++
+%%%+++'''@@@???<<<??????"""
+
+# Class that yields generator
+records = list(FastqParser(fastq))
+r: FastqRecord = records[0]
+print(r.id) # 2fa9ee19-5c51-4281-abdd-eac86
+print(r.seq) # CGGTAGCCAGCTGCGTTCAGTATG
+
+# Function that returns list
+records = fastq_parser(fastq)
+for r in records:
+    print(r.id) # 2fa9ee19-5c51-4281-abdd-eac86
+    print(r.seq) # CGGTAGCCAGCTGCGTTCAGTATG
 ```
 
 ## Requirements
