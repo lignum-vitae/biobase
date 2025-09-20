@@ -4,7 +4,7 @@
 [![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Flignum-vitae%2Fbiobase%2Fmain%2Fpyproject.toml)](https://github.com/lignum-vitae/biobase/blob/main/pyproject.toml)
 [![PyPI version](https://img.shields.io/pypi/v/biobase.svg)](https://pypi.python.org/pypi/biobase)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![GitHub branch status](https://img.shields.io/github/checks-status/lignum-vitae/biobase/main)](https://github.com/lignum-vitae/biobase)
+[![GitHub branch check runs](https://img.shields.io/github/check-runs/lignum-vitae/biobase/main)](https://github.com/lignum-vitae/biobase)
 
 A Python package providing standardized biological constants and scoring matrices
 for bioinformatics pipelines.
