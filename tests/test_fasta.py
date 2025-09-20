@@ -96,3 +96,23 @@ def test_invalid_fasta_raises_value_error(tmp_path):
 
     with pytest.raises(ValueError):
         fasta_parser("No headers here, just text")
+
+
+def test_fasta_parser_as_dict():
+    result = fasta_parser(SAMPLE_FASTA, as_dict=True)
+
+    # Check type
+    assert isinstance(result, dict)
+
+    # Check that both records are present
+    assert "CAA39742.1" in result
+    assert "BAA85863.1" in result
+
+    # Check a few sequence properties
+    seq1 = result["CAA39742.1"]
+    seq2 = result["BAA85863.1"]
+
+    assert seq1.startswith("MTNIRKSHPLM")
+    assert seq2.startswith("MTNIRKSHPLI")
+    assert "HIC" in seq1
+    assert "HIC" in seq2
