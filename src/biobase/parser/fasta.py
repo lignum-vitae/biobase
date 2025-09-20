@@ -94,11 +94,19 @@ class FastaParser:
             yield FastaRecord(header, seq)
 
 
-def fasta_parser(fasta: str) -> list[FastaRecord]:
+def fasta_parser(
+    fasta: str, as_dict: bool = False
+) -> list[FastaRecord] | dict[str, str]:
+    if as_dict:
+        return {parsed.id: parsed.seq for parsed in FastaParser(fasta)}
     return list(FastaParser(fasta))
 
 
-def fasta_file_parser(file_path: str) -> list[FastaRecord]:
+def fasta_file_parser(
+    file_path: str, as_dict: bool = False
+) -> list[FastaRecord] | dict[str, str]:
+    if as_dict:
+        return {parsed.id: parsed.seq for parsed in FastaFileParser(file_path)}
     return list(FastaFileParser(file_path))
 
 

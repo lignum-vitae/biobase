@@ -205,11 +205,19 @@ class FastqParser(FastqParserBase):
         return super().read_lengths()
 
 
-def fastq_parser(fastq: str) -> list[FastqRecord]:
+def fastq_parser(
+    fastq: str, as_dict: bool = False
+) -> list[FastqRecord] | dict[str, str]:
+    if as_dict:
+        return {parsed.id: parsed.seq for parsed in FastqParser(fastq)}
     return list(FastqParser(fastq))
 
 
-def fastq_file_parser(file_path: str) -> list[FastqRecord]:
+def fastq_file_parser(
+    file_path: str, as_dict: bool = False
+) -> list[FastqRecord] | dict[str, str]:
+    if as_dict:
+        return {parsed.id: parsed.seq for parsed in FastqFileParser(file_path)}
     return list(FastqFileParser(file_path))
 
 
