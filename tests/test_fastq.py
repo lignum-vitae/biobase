@@ -168,3 +168,28 @@ def test_filter_reads():
 
     filtered_reads = list(parser.filter_reads(12))
     assert len(filtered_reads) == 1
+
+
+def test_fastq_parser_as_dict():
+    result = fastq_parser(SAMPLE_FASTQ, as_dict=True)
+
+    # Check type
+    assert isinstance(result, dict)
+
+    # Extract the two read headers
+    headers = list(result.keys())
+
+    # There should be exactly 2 entries
+    assert len(headers) == 2
+
+    # Check sequences
+    seq1 = result[headers[0]]
+    seq2 = result[headers[1]]
+
+    # FASTQ keys should match original @ headers
+    assert headers[0].startswith("2fa9ee19-5c51-4281-abdd-eac8663f9b49")
+    assert headers[1].startswith("1f9ca490-2f25-484a-8972-d60922b41f6f")
+
+    # Validate that sequences are captured correctly
+    assert seq1.startswith("CGGTAGCCAGCTGCGTTCAGT")
+    assert seq2.startswith("GATGCATACTTCGTTCGATT")
