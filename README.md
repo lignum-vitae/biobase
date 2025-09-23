@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![GitHub branch check runs](https://img.shields.io/github/check-runs/lignum-vitae/biobase/main)](https://github.com/lignum-vitae/biobase)
 
-A Python package providing standardized biological constants and scoring matrices
+A Python package providing standardized biological constants and substitution matrices
 for bioinformatics pipelines.
 Biobase aims to eliminate the need to repeatedly recreate common biological data
 structures and scoring systems in your code.
@@ -15,8 +15,8 @@ structures and scoring systems in your code.
 
 - [Quick Start](#quick-start)
   - [Access amino acid properties](#access-amino-acid-properties)
-  - [Use scoring matrices](#use-scoring-matrices)
-  - [Analyze DNA sequences](#analyze-dna-sequences)
+  - [Use substitution matrices](#use-substitution-matrices)
+  - [Analyse DNA sequences](#analyse-dna-sequences)
   - [Find protein motifs](#find-protein-motifs)
   - [Parse FASTA](#parse-fasta)
 - [Requirements](#requirements)
@@ -27,7 +27,6 @@ structures and scoring systems in your code.
 - [Data Files](#data-files)
 - [Project Goals](#project-goals)
 - [Contributing](#contributing)
-- [Project Status](#project-status)
 - [License](#license)
 
 ## Quick Start
@@ -40,7 +39,7 @@ print(ONE_LETTER_CODES)  # 'ACDEFGHIKLMNPQRSTVWY'
 print(MONO_MASS['A'])    # 71.037113805
 ```
 
-#### Use scoring matrices
+#### Use substitution matrices
 
 ```python
 from biobase.matrix import Blosum
@@ -196,16 +195,15 @@ Clone the repository and install in editable mode:
 ```nginx
 git clone https://github.com/lignum-vitae/biobase.git
 cd biobase
-pip install -e .
+uv pip install -e ".[dev]"
 ```
 
-## Running Files
+Files can be run using `uv run <file_name>` if in the same directory/folder
+as the file.
 
-To ensure relative imports work correctly, always run files using the module path from the project root:
-
-### Run a specific file
-
-python -m src.biobase.matrix
+If not using uv, to ensure that relative imports correctly work, run files using
+the module path from the project root. To run the sub_matrix file, use the command
+`python -m src.biobase.matrix.sub_matrix`
 
 ## Data Files
 
@@ -225,13 +223,16 @@ and tools for bioinformatics pipelines. Key objectives:
 ## Contributing
 
 We welcome contributions! Please read our:
+
 - [Code of Conduct](https://github.com/lignum-vitae/biobase/blob/main/docs/CODE_OF_CONDUCT.md)
 - [Contribution Guidelines](https://github.com/lignum-vitae/biobase/blob/main/docs/CONTRIBUTING.md)
 
 ### Stability
 
-This project is in the beta stage. APIs may change without warning until version 1.0.0.
+This project is in the beta stage. APIs may change without warning until version
+1.0.0.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/lignum-vitae/biobase/blob/main/LICENSE) file for details.
+This project is licensed under the MIT License - see the
+[LICENSE](https://github.com/lignum-vitae/biobase/blob/main/LICENSE) file for details.
