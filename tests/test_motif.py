@@ -67,7 +67,16 @@ class TestSingleSequence:
             (
                 "AAAAAAAAAA",
                 "AAA",
-                [(0, 3), (1, 4), (2, 5), (3, 6), (4, 7), (5, 8), (6, 9), (7, 10)],
+                [
+                    (0, 3),
+                    (1, 4),
+                    (2, 5),
+                    (3, 6),
+                    (4, 7),
+                    (5, 8),
+                    (6, 9),
+                    (7, 10),
+                ],
             ),
         ],
     )
@@ -150,7 +159,9 @@ class TestExtendedAminoAcids:
             ">SP001": "ACDEFGHIKLMNPQRSTVWYUUOU",
             ">SP002": "DUOUACDEFGHIKLMNPQRSTVWY",
         }
-        result_dict, invalid_dict, no_matches = find_motifs(fasta, "CDE", ext=True)
+        result_dict, invalid_dict, no_matches = find_motifs(
+            fasta, "CDE", ext=True
+        )
         assert result_dict[">SP001"] == [(1, 4)]
         assert result_dict[">SP002"] == [(5, 8)]
         assert not invalid_dict
@@ -176,7 +187,9 @@ class TestEdgeCases:
         with pytest.raises(ValueError):
             find_motifs("ACDEF", None)
 
-    @pytest.mark.parametrize("invalid_char", ["1", "2", "@", "#", "$", " ", "\n", "\t"])
+    @pytest.mark.parametrize(
+        "invalid_char", ["1", "2", "@", "#", "$", " ", "\n", "\t"]
+    )
     def test_specific_invalid_chars(self, invalid_char):
         with pytest.raises(ValueError, match="Invalid"):
             find_motifs(f"ACDEF{invalid_char}GHIKL", "CDE")

@@ -153,7 +153,9 @@ class _Matrix:
             # Load from package resources (pip installation)
             package = "biobase.matrix.matrices"
             with (
-                importlib.resources.files(package).joinpath(filename).open("r") as file
+                importlib.resources.files(package)
+                .joinpath(filename)
+                .open("r") as file
             ):
                 self.matrix_data = json.load(file)
 
@@ -211,7 +213,9 @@ class _Matrix:
 
 
 class _BaseMatrixClass(_Matrix):
-    def __init__(self, matrix_name: str, version: int | str, matrix_folder) -> None:
+    def __init__(
+        self, matrix_name: str, version: int | str, matrix_folder
+    ) -> None:
         super().__init__(matrix_folder)
         self.select_matrix(matrix_name, version)
         self.load_json_matrix()
@@ -326,7 +330,9 @@ class Match(_BaseMatrixClass):
 
 
 def text_matrix_to_json(
-    input_matrix_path: str | Path, output_matrix_path: str | Path, matrix_name: str
+    input_matrix_path: str | Path,
+    output_matrix_path: str | Path,
+    matrix_name: str,
 ) -> None:
     r"""
     Convert a text matrix file to JSON format.
@@ -378,7 +384,9 @@ def text_matrix_to_json(
         raw_lines = input_file.readlines()
 
     # Filter out comments and split lines into tokens
-    matrix_lines = [line.split() for line in raw_lines if not line.startswith("#")]
+    matrix_lines = [
+        line.split() for line in raw_lines if not line.startswith("#")
+    ]
     # First line contains amino acid labels
     amino_acid_labels = matrix_lines[0]
 

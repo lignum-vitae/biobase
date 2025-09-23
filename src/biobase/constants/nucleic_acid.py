@@ -49,7 +49,13 @@ DNA = "ATCG"
 RNA = "AUCG"
 NUCLEOTIDES = "ATCGU"
 NUCLEOTIDE_NAMES = ["Adenine", "Thymine", "Cytosine", "Guanine", "Uracil"]
-MOLECULAR_WEIGHT = {"A": 135.13, "T": 126.12, "C": 111.10, "G": 151.13, "U": 112.09}
+MOLECULAR_WEIGHT = {
+    "A": 135.13,
+    "T": 126.12,
+    "C": 111.10,
+    "G": 151.13,
+    "U": 112.09,
+}
 
 DNA_COMPLEMENTS = {"A": "T", "T": "A", "C": "G", "G": "C"}
 RNA_COMPLEMENTS = {"A": "U", "U": "A", "C": "G", "G": "C"}

@@ -30,7 +30,9 @@ class TestMolecularWeights:
 
     def test_molecular_weight_type(self):
         """Test that all molecular weights are floats"""
-        assert all(isinstance(weight, float) for weight in MOLECULAR_WEIGHT.values())
+        assert all(
+            isinstance(weight, float) for weight in MOLECULAR_WEIGHT.values()
+        )
 
     def test_molecular_weight_positive(self):
         """Test that all molecular weights are positive"""
@@ -82,7 +84,11 @@ class TestDataTypeConsistency:
 
     def test_complement_types(self):
         """Test that complement dictionaries have str keys and values"""
-        for complement_dict in [DNA_COMPLEMENTS, RNA_COMPLEMENTS, IUPAC_NUCLEOTIDES]:
+        for complement_dict in [
+            DNA_COMPLEMENTS,
+            RNA_COMPLEMENTS,
+            IUPAC_NUCLEOTIDES,
+        ]:
             assert isinstance(complement_dict, dict)
             assert all(isinstance(k, str) for k in complement_dict.keys())
             assert all(isinstance(v, str) for v in complement_dict.values())

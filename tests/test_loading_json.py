@@ -16,7 +16,11 @@ MATRIX_FILES = [
 def test_load_json_from_package(filename):
     package = "biobase.matrix.matrices"
     try:
-        with importlib.resources.files(package).joinpath(filename).open("r") as file:
+        with (
+            importlib.resources.files(package)
+            .joinpath(filename)
+            .open("r") as file
+        ):
             data = json.load(file)
     except FileNotFoundError:
         pytest.fail(f"File not found in package resources: {filename}")

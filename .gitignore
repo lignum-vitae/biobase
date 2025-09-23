@@ -13,3 +13,5 @@ text_matrices/
 
 # Egg info folder
 *.egg-info/
+
+.venv/
