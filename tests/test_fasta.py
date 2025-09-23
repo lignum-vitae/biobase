@@ -1,6 +1,11 @@
 import pytest
 
-from biobase.parser import FastaParser, FastaFileParser, fasta_parser, fasta_file_parser
+from biobase.parser import (
+    FastaParser,
+    FastaFileParser,
+    fasta_parser,
+    fasta_file_parser,
+)
 
 SAMPLE_FASTA = """>CAA39742.1 cytochrome b (mitochondrion) [Sus scrofa]
 MTNIRKSHPLMKIINNAFIDLPAPSNISSWWNFGSLLGICLILQILTGLFLAMHYTSDTTTAFSSVTHIC

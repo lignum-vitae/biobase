@@ -95,7 +95,9 @@ def find_motifs(
             else:
                 non_matches.append(seq_id)
         return result_dict, invalid_ids, non_matches
-    raise ValueError("The input must be a non-empty string or FASTA dictionary.")
+    raise ValueError(
+        "The input must be a non-empty string or FASTA dictionary."
+    )
 
 
 if __name__ == "__main__":

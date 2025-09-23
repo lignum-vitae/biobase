@@ -88,7 +88,9 @@ class TestBLOSUM:
 
     def test_blosum_lookups(self, blosum62):
         assert blosum62["A"]["A"] > 0  # Match should be positive
-        assert isinstance(blosum62["A"]["W"], int)  # Should return integer score
+        assert isinstance(
+            blosum62["A"]["W"], int
+        )  # Should return integer score
 
     def test_blosum_invalid_lookup(self, blosum62):
         with pytest.raises(KeyError):
@@ -135,7 +137,8 @@ class TestIDENTITY:
         assert identity["A"]["C"] == 0  # Mismatch
 
     @pytest.mark.parametrize(
-        "aa1,aa2,expected", [("A", "A", 1), ("C", "C", 1), ("A", "C", 0), ("W", "Y", 0)]
+        "aa1,aa2,expected",
+        [("A", "A", 1), ("C", "C", 1), ("A", "C", 0), ("W", "Y", 0)],
     )
     def test_identity_scores(self, identity, aa1, aa2, expected):
         assert identity[aa1][aa2] == expected
@@ -193,7 +196,9 @@ class TestIntegration:
     def test_matrix_initialization(self, matrix_class):
         print(matrix_class.__name__)
         if matrix_class in [Blosum, Pam]:
-            matrix = matrix_class(matrix_class.matrices[matrix_class.__name__][0])
+            matrix = matrix_class(
+                matrix_class.matrices[matrix_class.__name__][0]
+            )
         elif matrix_class == Identity:
             matrix = matrix_class(0)
         else:
@@ -221,7 +226,9 @@ class TestAPIConsistency:
             # String representation
             assert str(matrix_obj).endswith("Matrix")
 
-    def test_error_handling_consistency(self, blosum62, pam250, identity, match):
+    def test_error_handling_consistency(
+        self, blosum62, pam250, identity, match
+    ):
         """All matrices should handle errors consistently"""
         for matrix_obj in [blosum62, pam250, identity, match]:
             # Invalid amino acid
@@ -294,7 +301,9 @@ class TestBioinformaticsIntegration:
                 scores.append(sum(col_scores))
 
             assert len(scores) == len(alignment[0])
-            assert scores[0] > scores[-1]  # First position more conserved than last
+            assert (
+                scores[0] > scores[-1]
+            )  # First position more conserved than last
 
     def test_substitution_analysis(self, blosum45, pam250):
         """Test analyzing amino acid substitutions"""

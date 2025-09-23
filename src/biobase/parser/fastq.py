@@ -62,7 +62,9 @@ class FastqRecord:
         return f">{self.id}\n{self.seq}"
 
     def phred_scores(self) -> np.ndarray:
-        return np.fromiter((ord(ch) - 33 for ch in self.quality), dtype=np.int16)
+        return np.fromiter(
+            (ord(ch) - 33 for ch in self.quality), dtype=np.int16
+        )
 
     def average_quality(self) -> float:
         scores: np.ndarray = self.phred_scores()
@@ -131,7 +133,10 @@ class FastqFileParser(FastqParserBase):
                 elif pos == 0:
                     read_quality = line.strip()
                     yield FastqRecord(
-                        read_identifier, nucleotide_sequence, separator, read_quality
+                        read_identifier,
+                        nucleotide_sequence,
+                        separator,
+                        read_quality,
                     )
 
     def count_reads(self) -> int:
@@ -183,7 +188,10 @@ class FastqParser(FastqParserBase):
             elif pos == 0:
                 read_quality = line.strip()
                 yield FastqRecord(
-                    read_identifier, nucleotide_sequence, separator, read_quality
+                    read_identifier,
+                    nucleotide_sequence,
+                    separator,
+                    read_quality,
                 )
 
     def count_reads(self) -> int:

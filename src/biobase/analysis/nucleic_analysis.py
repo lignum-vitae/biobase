@@ -36,7 +36,9 @@ class Nucleotides:
     nuc_molecular_weight = MOLECULAR_WEIGHT
 
     @staticmethod
-    def _validate_nucleotide(nucs: str, is_single_nucleotide: bool = False) -> str:
+    def _validate_nucleotide(
+        nucs: str, is_single_nucleotide: bool = False
+    ) -> str:
         """
         Validate a nucleotide sequence or single nucleotide.
 
@@ -59,7 +61,9 @@ class Nucleotides:
         if not nucs:
             raise ValueError("Empty nucleotide sequence provided.")
         if not isinstance(nucs, str):
-            raise ValueError(f"Expected string input, got {type(nucs).__name__}")
+            raise ValueError(
+                f"Expected string input, got {type(nucs).__name__}"
+            )
         if is_single_nucleotide and len(nucs) != 1:
             raise ValueError(
                 "Expected single nucleotide, got sequence of length {len(nucs)}"
@@ -146,12 +150,16 @@ class Dna:
         if not dna_seq:
             raise ValueError("Empty sequence provided.")
         if not isinstance(dna_seq, str):
-            raise ValueError(f"Expected string input, got {type(dna_seq).__name__}")
+            raise ValueError(
+                f"Expected string input, got {type(dna_seq).__name__}"
+            )
 
         dna_seq = dna_seq.upper()
         invalids = set(dna_seq) - Dna.VALID_DNA
         if invalids:
-            raise ValueError(f"Invalid DNA nucleotides found: {sorted(invalids)}")
+            raise ValueError(
+                f"Invalid DNA nucleotides found: {sorted(invalids)}"
+            )
 
         return dna_seq
 
@@ -319,7 +327,9 @@ class Dna:
     ) -> Iterator[tuple[int, int, str]]: ...
 
     @classmethod
-    def find_orfs(cls, dna_sequence: str, include_seq: bool = False) -> Iterator[Tuple]:
+    def find_orfs(
+        cls, dna_sequence: str, include_seq: bool = False
+    ) -> Iterator[Tuple]:
         """
         Yield all open reading frames (ORFs) found in a DNA sequence.
 
