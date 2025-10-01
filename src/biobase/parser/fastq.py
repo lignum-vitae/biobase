@@ -62,9 +62,7 @@ class FastqRecord:
         return f">{self.id}\n{self.seq}"
 
     def phred_scores(self) -> np.ndarray:
-        return np.fromiter(
-            (ord(ch) - 33 for ch in self.quality), dtype=np.int16
-        )
+        return np.fromiter((ord(ch) - 33 for ch in self.quality), dtype=np.int16)
 
     def average_quality(self) -> float:
         scores: np.ndarray = self.phred_scores()

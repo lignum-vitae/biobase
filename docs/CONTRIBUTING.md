@@ -192,16 +192,13 @@ Black enforces a consistent style automatically, so please run it before committ
 Some additional notes:
 
 - Use meaningful variable and function names.
-- Keep lines readable (Black defaults to 88 characters but this repo uses 80 or less).
+- Keep lines readable (Black defaults to 88 characters).
 - Make sure to update documentation if your changes affect the usage or API.
 
 You can format the codebase by running this from the root:
 
 ```bash
-black --line-length=80 .
-
-# OR run this equivalent command
-black -l 80 .
+black .
 ```
 
 ## License

@@ -1,5 +1,5 @@
 import pytest
-from biobase.analysis import Dna
+from biobase.analysis import Dna, Nucleotides
 from biobase.constants.nucleic_acid import (
     MOLECULAR_WEIGHT,
     RNA_COMPLEMENTS,
@@ -30,9 +30,7 @@ class TestMolecularWeights:
 
     def test_molecular_weight_type(self):
         """Test that all molecular weights are floats"""
-        assert all(
-            isinstance(weight, float) for weight in MOLECULAR_WEIGHT.values()
-        )
+        assert all(isinstance(weight, float) for weight in MOLECULAR_WEIGHT.values())
 
     def test_molecular_weight_positive(self):
         """Test that all molecular weights are positive"""
@@ -245,3 +243,37 @@ def test_complement_dna_empty_raises():
 def test_gc_content_invalid_raises():
     with pytest.raises(ValueError):
         Dna.calculate_gc_content("NNNN")
+
+
+@pytest.mark.parametrize(
+    "seq, expected",
+    [
+        ("AUGUUGUCGCCUU", "MLSP"),  # uppercase RNA
+        ("aUgUUGucgCCUu", "MLSP"),  # mixed-case RNA
+    ],
+)
+def test_translate_nucleotides(seq, expected):
+    assert Nucleotides.translate(seq) == expected
+
+
+@pytest.mark.parametrize(
+    "seq, expected",
+    [
+        ("ATGTTGTCGCCTT", "MLSP"),  # uppercase DNA
+        ("aTgTTGtcgCCTt", "MLSP"),  # mixed-case DNA
+    ],
+)
+def test_translate_dna(seq, expected):
+    assert Dna.translate(seq) == expected
+
+
+@pytest.mark.parametrize("seq", ["", None])
+def test_translate_nucleotides_empty_or_none(seq):
+    with pytest.raises(ValueError):
+        Nucleotides.translate(seq)
+
+
+@pytest.mark.parametrize("seq", ["", None])
+def test_translate_dna_empty_or_none(seq):
+    with pytest.raises(ValueError):
+        Dna.translate(seq)

@@ -4,29 +4,12 @@ import re
 from typing import Iterator, overload, Literal, Tuple
 
 # internal dependencies
-from biobase.constants import DNA_COMPLEMENTS, MOLECULAR_WEIGHT
+from biobase.constants import DNA_COMPLEMENTS, MOLECULAR_WEIGHT, CODON_TABLE
 
 
 def main():
-    print(Nucleotides.cumulative_molecular_weight("acgtagtgat"))
-    print(Nucleotides.cumulative_molecular_weight("AATTGG"))
-    print(Nucleotides.cumulative_molecular_weight("ACTG"))
-    print(Nucleotides.cumulative_molecular_weight("AU"))
-    print(Nucleotides.molecular_weight("u"))
-
-    print(Dna.transcribe("acccggtccatcatcattca"))
-    print(Dna.complement("acccggtccatcatcattca"))
-    print(Dna.complement("acccggtccatcatcattca", reverse=False))
-    # Homopolymer, exterme low entropy case, exp value = 0.0
-    print(Dna.entropy("AAAAAAA"))
-    print(Dna.entropy("ACGTACGT"))  # Equal distribution, exp value = 2.0
-    print(Dna.entropy("AAACCCGG"))  # Mixed, exp value = 1.561278124459133
-
-    for s, e in Dna.find_orfs("ccatgccctaaatggggtag"):
-        print(s, e)
-
-    for s, e, orf in Dna.find_orfs("ccatgccctaaatggggtag", include_seq=True):
-        print(s, e, orf)
+    print(Dna.translate("ATCGTAGC"))
+    print(Nucleotides.translate("ATGTTGTCGCCTT"))
 
 
 class Nucleotides:
@@ -36,9 +19,7 @@ class Nucleotides:
     nuc_molecular_weight = MOLECULAR_WEIGHT
 
     @staticmethod
-    def _validate_nucleotide(
-        nucs: str, is_single_nucleotide: bool = False
-    ) -> str:
+    def _validate_nucleotide(nucs: str, is_single_nucleotide: bool = False) -> str:
         """
         Validate a nucleotide sequence or single nucleotide.
 
@@ -61,9 +42,7 @@ class Nucleotides:
         if not nucs:
             raise ValueError("Empty nucleotide sequence provided.")
         if not isinstance(nucs, str):
-            raise ValueError(
-                f"Expected string input, got {type(nucs).__name__}"
-            )
+            raise ValueError(f"Expected string input, got {type(nucs).__name__}")
         if is_single_nucleotide and len(nucs) != 1:
             raise ValueError(
                 "Expected single nucleotide, got sequence of length {len(nucs)}"
@@ -122,6 +101,36 @@ class Nucleotides:
         nucs = cls._validate_nucleotide(nucs)
         return sum(cls.nuc_molecular_weight[nuc] for nuc in nucs)
 
+    @classmethod
+    def translate(cls, nucs: str) -> str:
+        """
+        Translate Nucleotide sequence to Amino Acids.
+
+        Parameters:
+        - nucs (str): Nucleotide sequence
+
+        Returns:
+        - str: Amino Acid sequence
+
+        Raises:
+        - ValueError: If sequence is invalid or empty
+
+        Example:
+        >>> Nucleotides.translate("AUGUUGUCGCCUU")
+        'MLSP'
+        >>> Nucleotides.translate("aUgUUGucgCCUu")
+        'MLSP'
+        """
+        nucs = cls._validate_nucleotide(nucs)
+        rna_seq = nucs.replace("T", "U")
+        seq_len = len(rna_seq)
+        triplets = seq_len - seq_len % 3
+        aa_seq = []
+        for i in range(0, triplets, 3):
+            codon = rna_seq[i : i + 3]
+            aa_seq.append(CODON_TABLE[codon])
+        return "".join(aa_seq)
+
 
 class Dna:
     VALID_DNA = frozenset("ATCG")
@@ -150,16 +159,12 @@ class Dna:
         if not dna_seq:
             raise ValueError("Empty sequence provided.")
         if not isinstance(dna_seq, str):
-            raise ValueError(
-                f"Expected string input, got {type(dna_seq).__name__}"
-            )
+            raise ValueError(f"Expected string input, got {type(dna_seq).__name__}")
 
         dna_seq = dna_seq.upper()
         invalids = set(dna_seq) - Dna.VALID_DNA
         if invalids:
-            raise ValueError(
-                f"Invalid DNA nucleotides found: {sorted(invalids)}"
-            )
+            raise ValueError(f"Invalid DNA nucleotides found: {sorted(invalids)}")
 
         return dna_seq
 
@@ -185,6 +190,38 @@ class Dna:
         """
         dna_seq = cls._validate_dna_sequence(dna_seq)
         return dna_seq.replace("T", "U")
+
+    @classmethod
+    def translate(cls, dna_seq: str) -> str:
+        """
+        Translate DNA to Amino Acids.
+
+        Parameters:
+        - dna_seq (str): DNA sequence
+
+        Returns:
+        - str: Amino Acid sequence
+
+        Raises:
+        - ValueError: If sequence is invalid or empty
+
+        Example:
+        >>> Dna.translate("ATGTTGTCGCCTT")
+        'MLSP'
+        >>> Dna.translate("aTgTTGtcgCCTt")
+        'MLSP'
+        """
+        dna_seq = cls._validate_dna_sequence(dna_seq)
+        rna_seq = cls.transcribe(dna_seq)
+        seq_len = len(rna_seq)
+        triplets = seq_len - seq_len % 3
+        aa_seq = []
+        for i in range(0, triplets, 3):
+            codon = rna_seq[i : i + 3]
+            if len(codon) < 3:
+                break
+            aa_seq.append(CODON_TABLE[codon])
+        return "".join(aa_seq)
 
     @classmethod
     def complement(cls, dna_seq: str, reverse: bool = False) -> str:
@@ -327,9 +364,7 @@ class Dna:
     ) -> Iterator[tuple[int, int, str]]: ...
 
     @classmethod
-    def find_orfs(
-        cls, dna_sequence: str, include_seq: bool = False
-    ) -> Iterator[Tuple]:
+    def find_orfs(cls, dna_sequence: str, include_seq: bool = False) -> Iterator[Tuple]:
         """
         Yield all open reading frames (ORFs) found in a DNA sequence.
 
