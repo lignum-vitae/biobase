@@ -34,7 +34,9 @@ class FastaRecord:
         self.seq = sequence
 
     def __repr__(self) -> str:
-        return f"FastaRecord(id={self.id!r}, name={self.name!r}, seq_len={len(self.seq)})"
+        return (
+            f"FastaRecord(id={self.id!r}, name={self.name!r}, seq_len={len(self.seq)})"
+        )
 
     def __str__(self) -> str:
         preview = self.seq[:20] + ("..." if len(self.seq) > 20 else "")
@@ -53,9 +55,7 @@ class FastaFileParser:
             temp = [x.strip() for x in file.readlines()]
         fast_index = [i for i, j in enumerate(temp) if ">" in j]
         if len(fast_index) == 0:
-            raise ValueError(
-                "Failed to parse file due to improper fasta format"
-            )
+            raise ValueError("Failed to parse file due to improper fasta format")
         elif len(fast_index) == 1:
             header = temp[fast_index[0]]
             seq = "".join(temp[fast_index[0] + 1 :])
@@ -79,9 +79,7 @@ class FastaParser:
         temp = [x.strip() for x in self.reads.split("\n")]
         fast_index = [i for i, j in enumerate(temp) if ">" in j]
         if len(fast_index) == 0:
-            raise ValueError(
-                "Failed to parse file due to improper fasta format"
-            )
+            raise ValueError("Failed to parse file due to improper fasta format")
         elif len(fast_index) == 1:
             header = temp[fast_index[0]]
             seq = "".join(temp[fast_index[0] + 1 :])

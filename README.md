@@ -37,6 +37,7 @@ structures and scoring systems in your code.
 from biobase.constants import ONE_LETTER_CODES, MONO_MASS
 print(ONE_LETTER_CODES)  # 'ACDEFGHIKLMNPQRSTVWY'
 print(MONO_MASS['A'])    # 71.037113805
+print(CODON_TABLE["AUG"])    # M
 ```
 
 #### Use substitution matrices
@@ -53,9 +54,10 @@ print(blosum62['W']['C'])  # -2
 ```python
 from biobase.analysis import Dna
 sequence = "ATCGTAGC"
-print(Dna.transcribe(sequence))               # 'AUCGUAGC'
 print(Dna.complement(sequence))               # 'TAGCATCG'
 print(Dna.complement(sequence, reverse=True)) # 'GCTACGAT'
+print(Dna.transcribe(sequence))               # 'AUCGUAGC'
+print(Dna.translate(sequence))                # 'IV'
 print(Dna.calculate_gc_content(sequence))     # 50.0
 print(Dna.calculate_at_content(sequence))     # 50.0
 print(Dna.entropy(sequence))                  # 2.0
@@ -74,6 +76,7 @@ from biobase.analysis import Nucleotides
 
 print(Nucleotides.molecular_weight("A"))               # 135.13
 print(Nucleotides.cumulative_molecular_weight("ATCG")) # 523.48
+print(Nucleotides.translate("AUGUUGUCGCCUU"))          # 'MLSP'
 ```
 
 #### Find protein motifs
