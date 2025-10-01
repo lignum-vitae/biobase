@@ -88,9 +88,7 @@ CGGTAGCCAGCTGCGTTCAGTATG
 def test_fastq_file_parser_class(tmp_path):
     fastq_file = tmp_path / "test.fastq"
     fastq_file.write_text(SAMPLE_FASTQ)
-    parser = FastqFileParser(
-        str(fastq_file)
-    )  # Produce a read object and can be listed
+    parser = FastqFileParser(str(fastq_file))  # Produce a read object and can be listed
     records = list(parser)
     assert len(records) == 2
     # Record 1
