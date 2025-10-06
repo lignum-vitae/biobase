@@ -2,7 +2,7 @@ import os
 import re
 from pathlib import Path
 
-import requests
+# import requests
 
 
 def main() -> None:
@@ -12,44 +12,43 @@ def main() -> None:
     """
 
     # URL for a sample GenBank file (human p53 gene) from NCBI
-    url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=NG_017013.2&rettype=gb&retmode=text"
-    file_path = "temp_record.gb"
-    try:
-        # Download the file
-        print("Downloading sample file from NCBI...")
-        response = requests.get(url)
-        response.raise_for_status()  # Raise an exception for bad status codes
-        with open(file_path, "w") as f:
-            f.write(response.text)
-        print(f"File saved to '{file_path}'")
-
-        # Parse the file and print results
-        print("\n--- Parsing GenBank Record ---")
-        g1 = GenBankRecord(file_path)
-        print(f"Record Object: {g1}\n")
-
-        for key, info in g1.entries.items():
-            print(f"{key}\n{info}\n===============================================")
-
-        print("\n--- Example of accessing parsed data ---")
-        if "LOCUS" in g1.entries:
-            print(f"Locus Name: {g1.entries['LOCUS'].name}")
-        if "ORIGIN" in g1.entries:
-            print(f"Sequence Length: {len(g1.entries['ORIGIN'].sequence)}")
-        if "FEATURES" in g1.entries:
-            print(f"Number of features: {len(g1.entries['FEATURES'].entries)}")
-            if g1.entries["FEATURES"].entries:
-                print(f"First feature: {g1.entries['FEATURES'].entries[0]}")
-
-    except requests.exceptions.RequestException as e:
-        print(f"Error downloading file: {e}")
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    finally:
-        # Clean up the downloaded file
-        if os.path.exists(file_path):
-            os.remove(file_path)
-            print(f"\nCleaned up '{file_path}'.")
+#    url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=NG_017013.2&rettype=gb&retmode=text"
+#    file_path = "temp_record.gb"
+#    try:       # Download the file
+#        print("Downloading sample file from NCBI...")
+#        response = requests.get(url)
+#        response.raise_for_status()  # Raise an exception for bad status codes
+#        with open(file_path, "w") as f:
+#            f.write(response.text)
+#        print(f"File saved to '{file_path}'")
+#
+#        # Parse the file and print results
+#        print("\n--- Parsing GenBank Record ---")
+#        g1 = GenBankRecord(file_path)
+#        print(f"Record Object: {g1}\n")
+#
+#        for key, info in g1.entries.items():
+#            print(f"{key}\n{info}\n===============================================")
+#
+#        print("\n--- Example of accessing parsed data ---")
+#        if "LOCUS" in g1.entries:
+#            print(f"Locus Name: {g1.entries['LOCUS'].name}")
+#        if "ORIGIN" in g1.entries:
+#            print(f"Sequence Length: {len(g1.entries['ORIGIN'].sequence)}")
+#        if "FEATURES" in g1.entries:
+#            print(f"Number of features: {len(g1.entries['FEATURES'].entries)}")
+#            if g1.entries["FEATURES"].entries:
+#                print(f"First feature: {g1.entries['FEATURES'].entries[0]}")
+#
+#    except requests.exceptions.RequestException as e:
+#        print(f"Error downloading file: {e}")
+#    except Exception as e:
+#        print(f"An error occurred: {e}")
+#    finally:
+#        # Clean up the downloaded file
+#        if os.path.exists(file_path):
+#            os.remove(file_path)
+#            print(f"\nCleaned up '{file_path}'.")
 
 
 class Locus:
