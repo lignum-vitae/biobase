@@ -30,15 +30,15 @@ def main() -> None:
 
         for key, info in g1.entries.items():
             print(f"{key}\n{info}\n===============================================")
-        
+
         print("\n--- Example of accessing parsed data ---")
-        if 'LOCUS' in g1.entries:
+        if "LOCUS" in g1.entries:
             print(f"Locus Name: {g1.entries['LOCUS'].name}")
-        if 'ORIGIN' in g1.entries:
+        if "ORIGIN" in g1.entries:
             print(f"Sequence Length: {len(g1.entries['ORIGIN'].sequence)}")
-        if 'FEATURES' in g1.entries:
+        if "FEATURES" in g1.entries:
             print(f"Number of features: {len(g1.entries['FEATURES'].entries)}")
-            if g1.entries['FEATURES'].entries:
+            if g1.entries["FEATURES"].entries:
                 print(f"First feature: {g1.entries['FEATURES'].entries[0]}")
 
     except requests.exceptions.RequestException as e:
@@ -51,74 +51,79 @@ def main() -> None:
             os.remove(file_path)
             print(f"\nCleaned up '{file_path}'.")
 
+
 class Locus:
     def __init__(self, line: str) -> None:
-        parts : list[str] = line.split()
-        self.name : str = parts[1]
-        self.length : int = int(parts[2])
-        self.molecule_type : str = parts[4]
-        self.date : str = parts[-1]
+        parts: list[str] = line.split()
+        self.name: str = parts[1]
+        self.length: int = int(parts[2])
+        self.molecule_type: str = parts[4]
+        self.date: str = parts[-1]
 
     def __repr__(self) -> str:
         return f"Locus name: {self.name}, Length: {self.length}\nMolecule type: {self.molecule_type}, Date: {self.date}"
 
 
 class Definition:
-    def __init__(self, info : str) -> None:
-        self.info : str = info.replace("DEFINITION", "").strip()
+    def __init__(self, info: str) -> None:
+        self.info: str = info.replace("DEFINITION", "").strip()
 
     def __repr__(self) -> str:
-        preview : str = f"{self.info[:70]}..." if len(self.info) > 70 else self.info
+        preview: str = f"{self.info[:70]}..." if len(self.info) > 70 else self.info
         return f"<Definition info='{preview}'>"
 
 
 class Accession:
-    def __init__(self, info : str) -> None:
-        self.info : str = " ".join(info.split()[1:])
+    def __init__(self, info: str) -> None:
+        self.info: str = " ".join(info.split()[1:])
 
     def __repr__(self) -> str:
         return f"<Accession: {self.info}>"
 
 
 class Version:
-    def __init__(self, info : str) -> None:
-        parts : list[str] = info.split()
-        self.version : str = parts[1]
-        self.gi : str | None = None
+    def __init__(self, info: str) -> None:
+        parts: list[str] = info.split()
+        self.version: str = parts[1]
+        self.gi: str | None = None
 
         for part in parts:
             if part.startswith("GI:"):
                 self.gi = part.split(":")[1]
                 break
-    
+
     def __repr__(self) -> str:
         return f"<Version: {self.version} GI:{self.gi}>"
 
+
 class Origin:
     """Representation of the ORIGIN entry in a GenBank format"""
+
     def __init__(self, raw_text: str) -> None:
-        self._raw_text : str = raw_text
+        self._raw_text: str = raw_text
 
     @property
     def sequence(self) -> str:
-        lines : list[str] = self._raw_text.splitlines()
-        seq_lines : list[str] = []
+        lines: list[str] = self._raw_text.splitlines()
+        seq_lines: list[str] = []
 
         for line in lines:
             if line.startswith("ORIGIN") or line.startswith("//"):
                 continue
-            clean : str = ''.join(ch for ch in line if ch.isalpha())
+            clean: str = "".join(ch for ch in line if ch.isalpha())
             seq_lines.append(clean)
-        return ''.join(seq_lines).lower()
+        return "".join(seq_lines).lower()
 
     def __repr__(self) -> str:
-        seq : str = self.sequence
-        preview : str = seq[:20] + "..." if len(seq) > 20 else seq
+        seq: str = self.sequence
+        preview: str = seq[:20] + "..." if len(seq) > 20 else seq
         return f"<Origin sequence='{preview}' length={len(seq)}>"
+
 
 class Feature:
     """Representation of one of FEATURES entries, like a 'gene' or a 'CDS' block."""
-    def __init__(self, key : str, location : str, qualifiers: dict[str, str]) -> None:
+
+    def __init__(self, key: str, location: str, qualifiers: dict[str, str]) -> None:
         self.key = key
         self.location = location
         self.qualifiers = qualifiers
@@ -129,46 +134,49 @@ class Feature:
 
 class Features:
     """Parses and stores the FEATURES block of a GenBank file"""
-    def __init__(self, info : str) -> None:
-        self.info : str = info
-        self.entries : list[Feature] = []
+
+    def __init__(self, info: str) -> None:
+        self.info: str = info
+        self.entries: list[Feature] = []
         self._parse_features()
-    
+
     def __repr__(self) -> str:
         return f"<Features containing {len(self.entries)} entries>"
 
     def _parse_features(self) -> None:
         """Extract each feature line block (e.g., 'gene', 'CDS') and its qualifiers.
-        
+
         Expected structure in GenBank:
             FEATURE_KEY    LOCATION
                             /qualifier1="..."
                             /qualifier2="..."
         """
         # self.info have all the block of FEATURES
-        current_key : str = ""
-        current_loc : str = ""
-        current_quals : dict[str, str] = {}
-        
+        current_key: str = ""
+        current_loc: str = ""
+        current_quals: dict[str, str] = {}
+
         for line in self.info.splitlines()[1:]:
             # A new feature appears when a non-space appears in the first 21 columns
             # GenBank Uses fixed-width indentation
             if line[:21].strip() and not line.strip().startswith("/"):
                 # Store the previous feature
                 if current_key:
-                    self.entries.append(Feature(current_key, current_loc, current_quals))
-                parts = line.strip().split(None, 1) # split feature and location
+                    self.entries.append(
+                        Feature(current_key, current_loc, current_quals)
+                    )
+                parts = line.strip().split(None, 1)  # split feature and location
                 current_key = parts[0]
                 current_loc = parts[1] if len(parts) > 1 else ""
-                current_quals = {} # reset qualifiers for the new feature
+                current_quals = {}  # reset qualifiers for the new feature
 
             # This line is a qualifier for the new feature
             elif line.strip().startswith("/"):
-                qualifier = line.strip()[1:] # to remove leading slash
+                qualifier = line.strip()[1:]  # to remove leading slash
                 # usually qualifier and values are seperated by "="
                 if "=" in qualifier:
                     key, value = qualifier.split("=", 1)
-                    value = value.strip('""') # also remove quotes
+                    value = value.strip('""')  # also remove quotes
                     current_quals[key] = value
                 else:
                     # if qualifier doesn't have "="
@@ -185,40 +193,38 @@ class Features:
             self.entries.append(Feature(current_key, current_loc, current_quals))
 
 
-
-
 class GenBankRecord:
-    _ENTRY_PATTERN = re.compile(r"^[A-Z]+(\s|$)") # Line starts with all caps 
+    _ENTRY_PATTERN = re.compile(r"^[A-Z]+(\s|$)")  # Line starts with all caps
 
     _entry_classes = {
-            "LOCUS": Locus,
-            "DEFINITION": Definition,
-            "ACCESSION": Accession,
-            "FEATURES": Features,
-            "ORIGIN": Origin,
-            "VERSION": Version
-        }
+        "LOCUS": Locus,
+        "DEFINITION": Definition,
+        "ACCESSION": Accession,
+        "FEATURES": Features,
+        "ORIGIN": Origin,
+        "VERSION": Version,
+    }
 
     def __init__(self, filepath: str | Path) -> None:
         self._filepath = filepath
-        self.entries =  {} # empty because will be filled with the function
+        self.entries = {}  # empty because will be filled with the function
         self._parse_entries()
-        #TODO: faetures goes to the Features class
+        # TODO: faetures goes to the Features class
 
     def __repr__(self) -> str:
-        locus_name = self.entries['LOCUS'].name if 'LOCUS' in self.entries else 'N/A'
+        locus_name = self.entries["LOCUS"].name if "LOCUS" in self.entries else "N/A"
         return f"<GenBankRecord for '{locus_name}' from '{self._filepath}'>"
-    
-    def _split_into_blocks(self, file_contents : str) -> list[tuple[str, str]]:
+
+    def _split_into_blocks(self, file_contents: str) -> list[tuple[str, str]]:
         """Split a GenBank reord by into (key, block) pairs while preserving duplicates"""
-        blocks : list[tuple[str, str]] = []
-        current_key : str | None = None
-        buffer : list[str] = []
+        blocks: list[tuple[str, str]] = []
+        current_key: str | None = None
+        buffer: list[str] = []
 
         for line in file_contents.splitlines():
             # Detect header line
             if self._ENTRY_PATTERN.match(line):
-                #restore the block if there is already a present key
+                # restore the block if there is already a present key
                 if current_key:
                     blocks.append((current_key, "\n".join(buffer).strip()))
                     buffer.clear()
@@ -233,15 +239,15 @@ class GenBankRecord:
 
         return blocks
 
-    def _parse_entries(self): # returns a dict
+    def _parse_entries(self):  # returns a dict
         """Parse all GenBank entries and instantiate known classes."""
         with open(self._filepath) as f:
-            text : str = f.read()
-        
+            text: str = f.read()
+
         for key, block in self._split_into_blocks(text):
             # if the entry maps to an entry in the _entry_classes else create new one
             cls = self._entry_classes.get(key)
-            if key in self.entries: 
+            if key in self.entries:
                 if isinstance(self.entries[key], str) and isinstance(block, str):
                     # append repeated entries
                     self.entries[key] += "\n" + block
@@ -252,6 +258,7 @@ class GenBankRecord:
                 # cls here is a class (I have to remind myself that it is)
                 # keep raw text if there is no mapping entry in the _entry_classes
                 self.entries[key] = cls(block) if cls else block
+
 
 if __name__ == "__main__":
     main()

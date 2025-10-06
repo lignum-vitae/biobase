@@ -24,4 +24,4 @@ Definition = genbank.Definition
 Accession = genbank.Accession
 Version = genbank.Version
 Origin = genbank.Origin
-Features = genbank.Features # The container class for all features
+Features = genbank.Features  # The container class for all features
