@@ -13,6 +13,8 @@ def main() -> None:
     """
 
     # URL for a sample GenBank file (human p53 gene) from NCBI
+
+
 #    url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=NG_017013.2&rettype=gb&retmode=text"
 #    file_path = "temp_record.gb"
 #    try:       # Download the file
@@ -53,15 +55,16 @@ def main() -> None:
 
 
 class Locus:
-    _MOLECULE_TYPE_LIST : list[str] = ["DNA", "RNA", "PROTEIN"]
+    _MOLECULE_TYPE_LIST: list[str] = ["DNA", "RNA", "PROTEIN"]
+
     def __init__(self, line: str) -> None:
-        self._raw_line : str = line.strip() 
+        self._raw_line: str = line.strip()
         self._parts: list[str] = self._raw_line.split()
-        self.name : str = ""
-        self.length : int = 0
-        self.molecule_type : str = ""
-        self.topology : str = ""
-        self.date : str = "" 
+        self.name: str = ""
+        self.length: int = 0
+        self.molecule_type: str = ""
+        self.topology: str = ""
+        self.date: str = ""
         self._set_info()
 
     def _set_info(self):
@@ -70,7 +73,7 @@ class Locus:
 
         # LOCUS name is always second
         self.name: str = self._parts[1] if len(self._parts) > 1 else ""
-        
+
         # Try to find the number as the length
         for i, token in enumerate(self._parts):
             if token.isdigit():
@@ -93,8 +96,9 @@ class Locus:
             f"Locus(name='{self.name}', length={self.length}, "
             f"molecule_type='{self.molecule_type}', topology='{self.topology}', "
             f"date='{self.date}')"
-         )
-    
+        )
+
+
 class Definition:
     def __init__(self, info: str) -> None:
         self.info: str = info.replace("DEFINITION", "").strip()
@@ -223,19 +227,22 @@ class Features:
         if current_key:
             self.entries.append(SingleFeature(current_key, current_loc, current_quals))
 
+
 class GenBankParser:
-    """A parser that reads a GenBANK file and splits it into entry blocks""" 
-    
+    """A parser that reads a GenBANK file and splits it into entry blocks"""
+
     _ENTRY_PATTERN = re.compile(r"^[A-Z]+(\s|$)")  # Line starts with all caps
 
-    def __init__(self, filepath : str | Path) -> None:
+    def __init__(self, filepath: str | Path) -> None:
         self.filepath = Path(filepath)
 
     def read(self) -> str:
         with open(self.filepath) as f:
             return f.read()
 
-    def _split_into_blocks(self, file_contents: str) -> Generator[tuple[str, str], None, None]:
+    def _split_into_blocks(
+        self, file_contents: str
+    ) -> Generator[tuple[str, str], None, None]:
         """Yeild (key, block) pairs from a GenBank record lazily while preserving duplicates"""
 
         current_key: str | None = None
@@ -260,7 +267,8 @@ class GenBankParser:
 
 class GenBankRecord:
     """Represents a parsed GenBank record with entries"""
-    _entry_classes : dict[str, type] = {
+
+    _entry_classes: dict[str, type] = {
         "LOCUS": Locus,
         "DEFINITION": Definition,
         "ACCESSION": Accession,
@@ -271,11 +279,13 @@ class GenBankRecord:
 
     def __init__(self, filepath: str | Path) -> None:
         self._filepath = Path(filepath)
-        self.entries : dict[str, Any] = {}  # empty because will be filled with the function
+        self.entries: dict[str, Any] = (
+            {}
+        )  # empty because will be filled with the function
         self._load()
-        self.name : str = self.entries["DEFINITION"].info
-        self.seq : str = self.entries["ORIGIN"].sequence
-        self.id : str = self.entries["ACCESSION"].info
+        self.name: str = self.entries["DEFINITION"].info
+        self.seq: str = self.entries["ORIGIN"].sequence
+        self.id: str = self.entries["ACCESSION"].info
 
     def __repr__(self) -> str:
         locus_name = self.entries["LOCUS"].name if "LOCUS" in self.entries else "N/A"
@@ -284,7 +294,7 @@ class GenBankRecord:
     def _load(self) -> None:
         """Use GenBank parser to parse this file"""
         parser = GenBankParser(self._filepath)
-        text : str = parser.read()
+        text: str = parser.read()
 
         for key, block in parser._split_into_blocks(text):
             # if the entry maps to an entry in the _entry_classes else create new one
@@ -300,6 +310,7 @@ class GenBankRecord:
                 # entry_cls here is a class (I have to remind myself that it is)
                 # keep raw text if there is no mapping entry in the _entry_classes
                 self.entries[key] = entry_cls(block) if entry_cls else block
+
 
 if __name__ == "__main__":
     main()
