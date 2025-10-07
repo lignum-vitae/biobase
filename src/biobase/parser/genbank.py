@@ -1,4 +1,5 @@
 import re
+from collections.abc import Generator
 from pathlib import Path
 from typing import Any
 
@@ -234,9 +235,9 @@ class GenBankParser:
         with open(self.filepath) as f:
             return f.read()
 
-    def _split_into_blocks(self, file_contents: str) -> list[tuple[str, str]]:
-        """Split a GenBank reord by into (key, block) pairs while preserving duplicates"""
-        blocks: list[tuple[str, str]] = []
+    def _split_into_blocks(self, file_contents: str) -> Generator[tuple[str, str], None, None]:
+        """Yeild (key, block) pairs from a GenBank record lazily while preserving duplicates"""
+
         current_key: str | None = None
         buffer: list[str] = []
 
@@ -245,7 +246,7 @@ class GenBankParser:
             if self._ENTRY_PATTERN.match(line):
                 # restore the block if there is already a present key
                 if current_key:
-                    blocks.append((current_key, "\n".join(buffer).strip()))
+                    yield current_key, "\n".join(buffer).strip()
                     buffer.clear()
                 current_key = line.split()[0]
                 buffer.append(line)
@@ -254,11 +255,7 @@ class GenBankParser:
                 buffer.append(line)
         # Save the last block
         if current_key:
-            blocks.append((current_key, "\n".join(buffer).strip()))
-
-        return blocks
-
-
+            yield current_key, "\n".join(buffer).strip()
 
 
 class GenBankRecord:
@@ -300,7 +297,7 @@ class GenBankRecord:
                     self.entries[key] = block
             else:
                 # instantiate using the contructors in the _entry_classes
-                # cls here is a class (I have to remind myself that it is)
+                # entry_cls here is a class (I have to remind myself that it is)
                 # keep raw text if there is no mapping entry in the _entry_classes
                 self.entries[key] = entry_cls(block) if entry_cls else block
 
