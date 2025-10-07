@@ -17,8 +17,9 @@ FastaRecord = fasta.FastaRecord
 FastqRecord = fastq.FastqRecord
 
 # GenBank Parser Classes
+GenBankParser = genbank.GenBankParser
 GenBankRecord = genbank.GenBankRecord
-Feature = genbank.Feature
+SingleFeature = genbank.SingleFeature
 Locus = genbank.Locus
 Definition = genbank.Definition
 Accession = genbank.Accession
