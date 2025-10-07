@@ -52,17 +52,48 @@ def main() -> None:
 
 
 class Locus:
+    _MOLECULE_TYPE_LIST : list[str] = ["DNA", "RNA", "PROTEIN"]
     def __init__(self, line: str) -> None:
-        parts: list[str] = line.split()
-        self.name: str = parts[1]
-        self.length: int = int(parts[2])
-        self.molecule_type: str = parts[4]
-        self.date: str = parts[-1]
+        self._raw_line : str = line.strip() 
+        self._parts: list[str] = self._raw_line.split()
+        self.name : str = ""
+        self.length : int = 0
+        self.molecule_type : str = ""
+        self.topology : str = ""
+        self.date : str = "" 
+        self._set_info()
+
+    def _set_info(self):
+        if not self._parts:
+            return
+
+        # LOCUS name is always second
+        self.name: str = self._parts[1] if len(self._parts) > 1 else ""
+        
+        # Try to find the number as the length
+        for i, token in enumerate(self._parts):
+            if token.isdigit():
+                self.length: int = int(token)
+                break
+        # Identify molcule type - date is not treated as one
+        for token in self._parts:
+            if token.upper() in self._MOLECULE_TYPE_LIST:
+                self.molecule_type = token.upper()
+                break
+        # Detect topology
+        for token in self._parts:
+            if token.lower() in ("linear", "circular"):
+                self.topology = token.lower()
+
+        self.date: str = self._parts[-1] if len(self._parts) > 2 else ""
 
     def __repr__(self) -> str:
-        return f"Locus name: {self.name}, Length: {self.length}\nMolecule type: {self.molecule_type}, Date: {self.date}"
-
-
+        return (
+            f"Locus(name='{self.name}', length={self.length}, "
+            f"molecule_type='{self.molecule_type}', topology='{self.topology}', "
+            f"date='{self.date}')"
+         )
+    
 class Definition:
     def __init__(self, info: str) -> None:
         self.info: str = info.replace("DEFINITION", "").strip()
