@@ -3,17 +3,9 @@ from pathlib import Path
 import pytest
 
 # Import the updated classes from your parser module
-from biobase.parser.genbank import (
-    Accession,
-    Definition,
-    Features,
-    GenBankParser,
-    GenBankRecord,
-    Locus,
-    Origin,
-    SingleFeature,
-    Version,
-)
+from biobase.parser.genbank import (Accession, Definition, Features,
+                                    GenBankParser, GenBankRecord, Locus,
+                                    Origin, SingleFeature, Version)
 
 SAMPLE_GENBANK = """LOCUS       NC_012532               1079 bp    RNA     linear   VRL 28-JUL-2016
 DEFINITION  Zika virus, complete genome.
@@ -88,7 +80,6 @@ def test_genbank_parser_split_into_blocks(sample_gbk_file: str):
     assert keys.count("REFERENCE") == 2
     assert keys.count("LOCUS") == 1
 
-    # This is the corrected list, with "REFERENCE" appearing twice.
     expected_keys = [
         "LOCUS",
         "DEFINITION",

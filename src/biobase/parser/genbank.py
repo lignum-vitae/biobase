@@ -79,7 +79,7 @@ class Locus:
             if token.isdigit():
                 self.length: int = int(token)
                 break
-        # Identify molcule type - date is not treated as one
+        # Identify molcule type
         for token in self._parts:
             if token.upper() in self._MOLECULE_TYPE_LIST:
                 self.molecule_type = token.upper()
