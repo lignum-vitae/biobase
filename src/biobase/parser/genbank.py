@@ -1,7 +1,7 @@
 import re
 from collections.abc import Generator
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterator
 
 # import requests
 
@@ -228,15 +228,53 @@ class Features:
             self.entries.append(SingleFeature(current_key, current_loc, current_quals))
 
 
+class GenBankRecord:
+    """Represents a parsed GenBank record with entries"""
+
+    _entry_classes: dict[str, type] = {
+        "LOCUS": Locus,
+        "DEFINITION": Definition,
+        "ACCESSION": Accession,
+        "FEATURES": Features,
+        "ORIGIN": Origin,
+        "VERSION": Version,
+    }
+
+    def __init__(
+        self, entries: dict[str, Any], source_filepath: Path | None = None
+    ) -> None:
+        # The parser now provides the 'entries' dict directly.
+        self.entries: dict[str, Any] = entries
+        self._source_filepath = source_filepath
+
+        # Access common fields, handling potential missing keys gracefully
+        self.name: str = (
+            self.entries.get("DEFINITION").info
+            if "DEFINITION" in self.entries
+            else "N/A"
+        )
+        self.seq: str = (
+            self.entries.get("ORIGIN").sequence if "ORIGIN" in self.entries else ""
+        )
+        self.id: str = (
+            self.entries.get("ACCESSION").info if "ACCESSION" in self.entries else "N/A"
+        )
+
+    def __repr__(self) -> str:
+        locus_name = self.entries["LOCUS"].name if "LOCUS" in self.entries else "N/A"
+        return f"<GenBankRecord for '{locus_name}'>"
+
+
 class GenBankParser:
     """A parser that reads a GenBANK file and splits it into entry blocks"""
 
     _ENTRY_PATTERN = re.compile(r"^[A-Z]+(\s|$)")  # Line starts with all caps
+    _RECORD_SEPARATOR = "//"
 
     def __init__(self, filepath: str | Path) -> None:
         self.filepath = Path(filepath)
 
-    def read(self) -> str:
+    def read_all(self) -> str:
         with open(self.filepath) as f:
             return f.read()
 
@@ -264,52 +302,46 @@ class GenBankParser:
         if current_key:
             yield current_key, "\n".join(buffer).strip()
 
+    def _split_into_records(self, file_contents: str) -> Generator[str, None, None]:
+        """Splits the file content into multiple GenBank record blocks"""
+        for record_block in file_contents.split(f"\n{self._RECORD_SEPARATOR}\n"):
+            clean_block = record_block.strip()
+            if clean_block:
+                # Re-add the seprator if it was present
+                if not clean_block.endswith(self._RECORD_SEPARATOR):
+                    clean_block += f"\n{self._RECORD_SEPARATOR}"
+                yield clean_block
 
-class GenBankRecord:
-    """Represents a parsed GenBank record with entries"""
+    def _parse_record(self, record_text: str) -> GenBankRecord:
+        """Parse a single record text block and returns a GenBank record object."""
+        entries: dict[str, Any] = {}
+        entry_classes = GenBankRecord._entry_classes
 
-    _entry_classes: dict[str, type] = {
-        "LOCUS": Locus,
-        "DEFINITION": Definition,
-        "ACCESSION": Accession,
-        "FEATURES": Features,
-        "ORIGIN": Origin,
-        "VERSION": Version,
-    }
-
-    def __init__(self, filepath: str | Path) -> None:
-        self._filepath = Path(filepath)
-        self.entries: dict[str, Any] = (
-            {}
-        )  # empty because will be filled with the function
-        self._load()
-        self.name: str = self.entries["DEFINITION"].info
-        self.seq: str = self.entries["ORIGIN"].sequence
-        self.id: str = self.entries["ACCESSION"].info
-
-    def __repr__(self) -> str:
-        locus_name = self.entries["LOCUS"].name if "LOCUS" in self.entries else "N/A"
-        return f"<GenBankRecord for '{locus_name}' from '{self._filepath}'>"
-
-    def _load(self) -> None:
-        """Use GenBank parser to parse this file"""
-        parser = GenBankParser(self._filepath)
-        text: str = parser.read()
-
-        for key, block in parser._split_into_blocks(text):
+        for key, block in self._split_into_blocks(record_text):
             # if the entry maps to an entry in the _entry_classes else create new one
-            entry_cls = self._entry_classes.get(key)
-            if key in self.entries:
-                if isinstance(self.entries[key], str) and isinstance(block, str):
+            entry_cls = entry_classes.get(key)
+            if key in entries:
+                if isinstance(entries[key], str) and isinstance(block, str):
                     # append repeated entries
-                    self.entries[key] += "\n" + block
+                    entries[key] += "\n" + block
                 else:
-                    self.entries[key] = block
+                    entries[key] = block
             else:
                 # instantiate using the contructors in the _entry_classes
                 # entry_cls here is a class (I have to remind myself that it is)
                 # keep raw text if there is no mapping entry in the _entry_classes
-                self.entries[key] = entry_cls(block) if entry_cls else block
+                entries[key] = entry_cls(block) if entry_cls else block
+        return GenBankRecord(entries, source_filepath=self.filepath)
+
+    def __iter__(self) -> Iterator[GenBankRecord]:
+        "Allows iterating over the records in the file"
+        file_contents = self.read_all()
+        for record_text in self._split_into_records(file_contents):
+            # Parse each record block and yield the GenBankRecord object
+            if (
+                record_text.strip() != self._RECORD_SEPARATOR
+            ):  # Skip empty blocks from splitting
+                yield self._parse_record(record_text)
 
 
 if __name__ == "__main__":
