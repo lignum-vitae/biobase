@@ -3,55 +3,74 @@ from collections.abc import Generator
 from pathlib import Path
 from typing import Any, Iterator
 
-# import requests
-
 
 def main() -> None:
     """
     Main function to demonstrate the GenBank parser.
-    It downloads a sample file, parse it, prints the contents, and clean it afterwards
+    It downloads a sample file, parses it using the new iterable parser,
+    prints the contents of all records, and cleans up the file afterward.
     """
+    # import requests
+    # import os
 
-    # URL for a sample GenBank file (human p53 gene) from NCBI
+    # # URL for a sample GenBank file with multiple records (e.g., several accessions)
+    # multi_record_ids = "NG_017013.2,DQ366810.1,X52541.1"
+    # url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id={multi_record_ids}&rettype=gb&retmode=text"
+    # file_path = "temp_multi_record.gb"
 
+    # try:
+    #     # 1. Download the file
+    #     print(f"Downloading sample file with multiple records from NCBI: {multi_record_ids}...")
+    #     response = requests.get(url, timeout=10)
+    #     response.raise_for_status()  # Raise an exception for bad status codes
 
-#    url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=NG_017013.2&rettype=gb&retmode=text"
-#    file_path = "temp_record.gb"
-#    try:       # Download the file
-#        print("Downloading sample file from NCBI...")
-#        response = requests.get(url)
-#        response.raise_for_status()  # Raise an exception for bad status codes
-#        with open(file_path, "w") as f:
-#            f.write(response.text)
-#        print(f"File saved to '{file_path}'")
-#
-#        # Parse the file and print results
-#        print("\n--- Parsing GenBank Record ---")
-#        g1 = GenBankRecord(file_path)
-#        print(f"Record Object: {g1}\n")
-#
-#        for key, info in g1.entries.items():
-#            print(f"{key}\n{info}\n===============================================")
-#
-#        print("\n--- Example of accessing parsed data ---")
-#        if "LOCUS" in g1.entries:
-#            print(f"Locus Name: {g1.entries['LOCUS'].name}")
-#        if "ORIGIN" in g1.entries:
-#            print(f"Sequence Length: {len(g1.entries['ORIGIN'].sequence)}")
-#        if "FEATURES" in g1.entries:
-#            print(f"Number of features: {len(g1.entries['FEATURES'].entries)}")
-#            if g1.entries["FEATURES"].entries:
-#                print(f"First feature: {g1.entries['FEATURES'].entries[0]}")
-#
-#    except requests.exceptions.RequestException as e:
-#        print(f"Error downloading file: {e}")
-#    except Exception as e:
-#        print(f"An error occurred: {e}")
-#    finally:
-#        # Clean up the downloaded file
-#        if os.path.exists(file_path):
-#            os.remove(file_path)
-#            print(f"\nCleaned up '{file_path}'.")
+    #     with open(file_path, "w") as f:
+    #         f.write(response.text)
+    #     print(f"File saved to '{file_path}'")
+
+    #     # 2. Parse the file and iterate over records using the GenBankParser
+    #     print("\n--- Parsing GenBank Records ---")
+    #     parser = GenBankParser(file_path)
+
+    #     total_records = 0
+
+    #     # Iterate over the parser, which yields GenBankRecord objects
+    #     for i, record in enumerate(parser, 1):
+    #         total_records += 1
+    #         print(f"\n--- Record {i}: {record!r} ---")
+
+    #         # Print core attributes
+    #         print(f"  ID: {record.id}")
+    #         print(f"  Name: {record.name}")
+
+    #         # Demonstrate access to parsed entries
+    #         if "LOCUS" in record.entries:
+    #             locus = record.entries["LOCUS"]
+    #             print(f"  Locus Name: {locus.name}")
+    #             print(f"  Sequence Length (from LOCUS): {locus.length} bp")
+
+    #         if "ORIGIN" in record.entries:
+    #             seq = record.entries["ORIGIN"].sequence
+    #             print(f"  Sequence Length (Actual): {len(seq)} bp")
+    #             print(f"  Sequence Preview: {seq[:30]}...")
+
+    #         if "FEATURES" in record.entries:
+    #             features = record.entries["FEATURES"]
+    #             print(f"  Number of features: {len(features.entries)}")
+    #             if features.entries:
+    #                 print(f"  First feature: {features.entries[0]}")
+
+    #     print(f"\nSuccessfully parsed {total_records} records.")
+
+    # except requests.exceptions.RequestException as e:
+    #     print(f"Error downloading file: {e}")
+    # except Exception as e:
+    #     print(f"An unexpected error occurred during parsing: {e}")
+    # finally:
+    #     # 3. Clean up the downloaded file
+    #     if os.path.exists(file_path):
+    #         os.remove(file_path)
+    #         print(f"\nCleaned up temporary file '{file_path}'.")
 
 
 class Locus:
