@@ -34,9 +34,9 @@ structures and scoring systems in your code.
 #### Access amino acid properties
 
 ```python
-from biobase.constants import ONE_LETTER_CODES, MONO_MASS
-print(ONE_LETTER_CODES)  # 'ACDEFGHIKLMNPQRSTVWY'
-print(MONO_MASS['A'])    # 71.037113805
+from biobase.constants import ONE_LETTER_CODES, MONO_MASS, CODON_TABLE
+print(ONE_LETTER_CODES)      # 'ACDEFGHIKLMNPQRSTVWY'
+print(MONO_MASS['A'])        # 71.037113805
 print(CODON_TABLE["AUG"])    # M
 ```
 
@@ -47,6 +47,27 @@ from biobase.matrix import Blosum
 blosum62 = Blosum(62)
 print(blosum62['A']['A'])  # 4
 print(blosum62['W']['C'])  # -2
+```
+
+```python
+from biobase.matrix import Pam
+pam200 = Pam(200)
+print(pam200['A']['A'])  # 3
+print(pam200['W']['C'])  # -9
+```
+
+```python
+from biobase.matrix import Identity
+identity0 = Identity(0)
+print(identity0['A']['A'])  # 1
+print(identity0['W']['C'])  # 0
+```
+
+```python
+from biobase.matrix import Match
+match_mat = Match()
+print(match_mat['A']['A'])  # 1
+print(match_mat['W']['C'])  # -1
 ```
 
 #### Analyse DNA sequences
