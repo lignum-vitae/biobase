@@ -5,11 +5,17 @@ This module provides fundamental constants and methods for protein analysis.
 
 Public module variables:
 ONE_LETTER_CODES -- string containing all amino acid one letter codes (ACDEFGHIKLMNPQRSTVWY)
-ONE_LETTER_CODES_EXT -- same as above plus selenocysteine (U) and pyrrolysine (O)
+ONE_LETTER_CODES_EXT -- same as above plus pyrrolysine (O) and selenocysteine (U)
 THREE_LETTER_CODES -- set containing all amino acid three letter codes
 THREE_LETTER_CODES_EXT -- same as above plus selenocysteine (Sec) and pyrrolysine (Pyl)
 AMINO_ACID_NAMES -- set containing all amino acid full names
 AMINO_ACID_NAMES_EXT -- same as above plus selenocysteine and pyrrolysine
+ONE_TO_THREE_LETTER_AMINO_ACID_MAP -- dictionary mapping one-letter codes to three-letter codes
+ONE_TO_FULL_NAME_AMINO_ACID_MAP -- dictionary mapping one-letter codes to full names
+THREE_TO_ONE_LETTER_AMINO_ACID_MAP -- dictionary mapping three-letter codes to one-letter codes
+THREE_TO_FULL_NAME_AMINO_ACID_MAP -- dictionary mapping three-letter codes to full names
+FULL_TO_ONE_LETTER_AMINO_ACID_MAP -- dictionary mapping full names to one-letter codes
+FULL_TO_THREE_LETTER_AMINO_ACID_MAP -- dictionary mapping full names to three-letter codes
 MONO_MASS -- dictionary containing monoisotopic masses for each amino acid
 MONO_MASS_EXT -- same as above plus selenocysteine and pyrrolysine
 CODONS_PER_AA -- dictionary containing the number of codons per amino acid
@@ -25,6 +31,7 @@ Key components:
 Constants are organized by:
 - Standard amino acid codes (ONE_LETTER_CODES, THREE_LETTER_CODES, AMINO_ACID_NAMES)
 - Extended amino acids (*_EXT versions include pyrrolysine and selenocysteine)
+- Mapping dictionaries (e.g., ONE_TO_THREE_LETTER_AMINO_ACID_MAP)
 - Physical properties (MONO_MASS, MONO_MASS_EXT)
 - Genetic code (CODONS_PER_AA, CODON_TABLE, CODONS)
 
@@ -35,62 +42,92 @@ Notes:
 - Stop codons are represented as 'Stop' in the codon table
 """
 
+from collections import namedtuple
 from itertools import product
 
-ONE_LETTER_CODES = "ACDEFGHIKLMNPQRSTVWY"
-ONE_LETTER_CODES_EXT = ONE_LETTER_CODES + "OU"
+# --- Canonical Amino Acid Data ---
+# Use a namedtuple for better readability and to avoid magic indices.
+AminoAcid = namedtuple("AminoAcid", ["one_letter", "three_letter", "full_name"])
 
-THREE_LETTER_CODES = {
-    "Ala",
-    "Arg",
-    "Asn",
-    "Asp",
-    "Cys",
-    "Glu",
-    "Gln",
-    "Gly",
-    "His",
-    "Ile",
-    "Leu",
-    "Lys",
-    "Met",
-    "Phe",
-    "Pro",
-    "Ser",
-    "Thr",
-    "Trp",
-    "Tyr",
-    "Val",
+# This list serves as the single source of truth for amino acid data,
+# ordered by one-letter code for consistency.
+AMINO_ACID_DATA_STANDARD = [
+    AminoAcid("A", "Ala", "Alanine"),
+    AminoAcid("C", "Cys", "Cysteine"),
+    AminoAcid("D", "Asp", "Aspartic acid"),
+    AminoAcid("E", "Glu", "Glutamic acid"),
+    AminoAcid("F", "Phe", "Phenylalanine"),
+    AminoAcid("G", "Gly", "Glycine"),
+    AminoAcid("H", "His", "Histidine"),
+    AminoAcid("I", "Ile", "Isoleucine"),
+    AminoAcid("K", "Lys", "Lysine"),
+    AminoAcid("L", "Leu", "Leucine"),
+    AminoAcid("M", "Met", "Methionine"),
+    AminoAcid("N", "Asn", "Asparagine"),
+    AminoAcid("P", "Pro", "Proline"),
+    AminoAcid("Q", "Gln", "Glutamine"),
+    AminoAcid("R", "Arg", "Arginine"),
+    AminoAcid("S", "Ser", "Serine"),
+    AminoAcid("T", "Thr", "Threonine"),
+    AminoAcid("V", "Val", "Valine"),
+    AminoAcid("W", "Trp", "Tryptophan"),
+    AminoAcid("Y", "Tyr", "Tyrosine"),
+]
+
+AMINO_ACID_DATA_EXTENDED = [
+    AminoAcid("O", "Pyl", "Pyrrolysine"),
+    AminoAcid("U", "Sec", "Selenocysteine"),
+]
+
+AMINO_ACID_DATA = AMINO_ACID_DATA_STANDARD + AMINO_ACID_DATA_EXTENDED
+
+# --- Amino Acid Code Definitions ---
+# Derived from the canonical AMINO_ACID_DATA for consistency and to avoid duplication.
+
+# Standard one-letter codes (alphabetically sorted)
+ONE_LETTER_CODES = "".join(aa.one_letter for aa in AMINO_ACID_DATA_STANDARD)
+# Extended one-letter codes: standard codes plus extended (O, U) appended in alphabetical order
+ONE_LETTER_CODES_EXT = ONE_LETTER_CODES + "".join(
+    sorted([aa.one_letter for aa in AMINO_ACID_DATA_EXTENDED])
+)
+
+# Standard three-letter codes
+THREE_LETTER_CODES = {aa.three_letter for aa in AMINO_ACID_DATA_STANDARD}
+# Extended three-letter codes
+THREE_LETTER_CODES_EXT = {aa.three_letter for aa in AMINO_ACID_DATA}
+
+# Standard full names
+AMINO_ACID_NAMES = {aa.full_name for aa in AMINO_ACID_DATA_STANDARD}
+# Extended full names
+AMINO_ACID_NAMES_EXT = {aa.full_name for aa in AMINO_ACID_DATA}
+
+
+# --- Amino Acid Code Mappings ---
+# Dictionaries for various conversions, derived from the canonical AMINO_ACID_DATA.
+# These maps include both standard and extended amino acids.
+ONE_TO_THREE_LETTER_AMINO_ACID_MAP = {
+    aa.one_letter: aa.three_letter for aa in AMINO_ACID_DATA
 }
-THREE_LETTER_CODES_EXT = {"Pyl", "Sec"}
-THREE_LETTER_CODES_EXT.update(THREE_LETTER_CODES)
-
-AMINO_ACID_NAMES = {
-    "Alanine",
-    "Arginine",
-    "Asparagine",
-    "Aspartic acid",
-    "Cysteine",
-    "Glutamic acid",
-    "Glutamine",
-    "Glycine",
-    "Histidine",
-    "Isoleucine",
-    "Leucine",
-    "Lysine",
-    "Methionine",
-    "Phenylalanine",
-    "Proline",
-    "Serine",
-    "Threonine",
-    "Tryptophan",
-    "Tyrosine",
-    "Valine",
+ONE_TO_FULL_NAME_AMINO_ACID_MAP = {
+    aa.one_letter: aa.full_name for aa in AMINO_ACID_DATA
 }
 
-AMINO_ACID_NAMES_EXT = {"Pyrrolysine", "Selenocysteine"}
-AMINO_ACID_NAMES_EXT.update(AMINO_ACID_NAMES)
+THREE_TO_ONE_LETTER_AMINO_ACID_MAP = {
+    aa.three_letter: aa.one_letter for aa in AMINO_ACID_DATA
+}
+THREE_TO_FULL_NAME_AMINO_ACID_MAP = {
+    aa.three_letter: aa.full_name for aa in AMINO_ACID_DATA
+}
 
+FULL_TO_ONE_LETTER_AMINO_ACID_MAP = {
+    aa.full_name: aa.one_letter for aa in AMINO_ACID_DATA
+}
+FULL_TO_THREE_LETTER_AMINO_ACID_MAP = {
+    aa.full_name: aa.three_letter for aa in AMINO_ACID_DATA
+}
+
+
+# --- Other Constants ---
 # [1]
 MONO_MASS = {
     "A": 71.037113805,
