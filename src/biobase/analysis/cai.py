@@ -18,43 +18,13 @@ Notes:
 - CAI is the geometric mean of per-codon weights, where each weight is the
   codon’s reference frequency divided by the maximum reference frequency among
   synonymous codons for the same amino acid.
-- Stop codons are excluded from both the product and the length L.
+- Stop codons are excluded from both the product and the length.
 - Reference counts are organism-specific and must be supplied by the caller.
 """
 
 from math import log, exp
-from typing import Mapping
+from typing import Mapping, Iterable
 from biobase.constants.amino_acid import CODON_TABLE
-
-
-def _build_family_max(
-    ref_counts: Mapping[str, int | float]
-) -> tuple[dict[str, float], dict[str, float]]:
-    """
-    Normalize reference counts to RNA codons and compute per–amino-acid maxima.
-
-    Returns
-    -------
-    ref_rna : dict[str, float]
-        Reference codon counts with RNA keys (T->U, uppercase).
-    family_max : dict[str, float]
-        Amino acid -> maximum reference count among its synonymous codons.
-        STOP codons are ignored.
-    """
-    # Normalize reference to RNA uppercase
-    ref_rna: dict[str, float] = {
-        codon.upper().replace("T", "U"): float(v) for codon, v in ref_counts.items()
-    }
-
-    family_max: dict[str, float] = {}
-    for codon, aa in CODON_TABLE.items():
-        if aa == "STOP":
-            continue
-        f = ref_rna.get(codon, 0.0)
-        if f > family_max.get(aa, 0.0):
-            family_max[aa] = f
-
-    return ref_rna, family_max
 
 
 def cai(
@@ -86,6 +56,8 @@ def cai(
 
     Raises
     ------
+    RuntimeError
+        If the input sequence is shorter than 3 nucleotides.
     ValueError
         If the sequence contains invalid codons (after normalization).
 
@@ -96,12 +68,15 @@ def cai(
     >>> round(cai(seq, ref), 4)
     0.4729
     """
+    # Too short to contain even one codon
+    if len(seq) < 3:
+        raise RuntimeError("Sequence too short to calculate CAI")
+
     # 1) Normalize sequence: uppercase, strip spaces/newlines, DNA->RNA
-    s = seq.upper().replace(" ", "").replace("\n", "")
-    s = s.replace("T", "U")
+    s = seq.upper().replace(" ", "").replace("\n", "").replace("T", "U")
 
     # 2) Split into full codons only
-    codons = [s[i:i+3] for i in range(0, len(s) - (len(s) % 3), 3)]
+    codons = [s[i:i + 3] for i in range(0, len(s) - (len(s) % 3), 3)]
 
     # 3) Validate codons against the genetic code
     invalid = [c for c in codons if c not in CODON_TABLE]
@@ -113,7 +88,7 @@ def cai(
 
     # 5) Geometric mean of per-codon weights (w = f_i / max_f_in_family)
     total_log = 0.0
-    L = 0
+    codon_count = 0
 
     for codon in codons:
         aa = CODON_TABLE[codon]
@@ -132,6 +107,67 @@ def cai(
             continue
 
         total_log += log(w_i)
-        L += 1
+        codon_count += 1
 
-    return exp(total_log / L) if L > 0 else 0.0
+    return exp(total_log / codon_count) if codon_count > 0 else 0.0
+
+
+def _build_family_max(
+    ref_counts: Mapping[str, int | float]
+) -> tuple[dict[str, float], dict[str, float]]:
+    """
+    Normalize reference counts to RNA codons and compute per–amino-acid maxima.
+
+    Returns
+    -------
+    ref_rna : dict[str, float]
+        Reference codon counts with RNA keys (T->U, uppercase).
+    family_max : dict[str, float]
+        Amino acid -> maximum reference count among its synonymous codons.
+        STOP codons are ignored.
+    """
+    # Normalize reference to RNA uppercase
+    ref_rna: dict[str, float] = {
+        codon.upper().replace("T", "U"): float(v) for codon, v in ref_counts.items()
+    }
+
+    family_max: dict[str, float] = {}
+    for codon, family_member in ref_rna.items():
+        aa = CODON_TABLE.get(codon)
+        if aa is None or aa == "STOP":
+            continue
+        if family_member > family_max.get(aa, 0.0):
+            family_max[aa] = family_member
+
+    return ref_rna, family_max
+
+
+def ref_counts_from_sequences(seqs: Iterable[str]) -> dict[str, int]:
+    """
+    Build a reference *count* dict from an iterable of coding sequences.
+    - Accepts DNA/RNA input; converts T->U
+    - Ignores STOP codons and invalid triplets
+    - Ignores partial trailing codons
+    """
+    counts: dict[str, int] = {}
+    for s in seqs:
+        rna = s.upper().replace(" ", "").replace("\n", "").replace("T", "U")
+        # iterate full codons only
+        for i in range(0, len(rna) - (len(rna) % 3), 3):
+            codon = rna[i:i + 3]
+            aa = CODON_TABLE.get(codon)
+            if aa is None or aa == "STOP":
+                continue
+            counts[codon] = counts.get(codon, 0) + 1
+    return counts
+
+
+def ref_freqs_from_sequences(seqs: Iterable[str]) -> dict[str, float]:
+    """
+    Convert a sequence collection into reference *frequencies*.
+    """
+    counts = ref_counts_from_sequences(seqs)
+    total = float(sum(counts.values()))
+    if total == 0.0:
+        return {}
+    return {k: v / total for k, v in counts.items()}

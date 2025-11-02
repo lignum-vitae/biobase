@@ -30,13 +30,26 @@ def test_handles_dna_input_t_to_u_conversion():
     assert 0.0 <= result <= 1.0
 
 
-def test_empty_and_stop_only_sequences_return_zero():
-    """Empty sequence or sequences that only contribute STOP codons should yield 0.0."""
+def test_too_short_raises_runtimeerror():
+    """Sequences shorter than 3 nt should raise."""
     ref_counts = {"AAA": 10}
-    assert cai("", ref_counts) == 0.0
+    with pytest.raises(RuntimeError):
+        cai("", ref_counts)
+    with pytest.raises(RuntimeError):
+        cai("A", ref_counts)
+    with pytest.raises(RuntimeError):
+        cai("AA", ref_counts)
+
+
+def test_stop_only_or_stop_mixed_with_partial_returns_zero():
+    """
+    STOP-only (length >= 3 but no contributing codons) or STOP plus trailing partial
+    should yield 0.0.
+    """
+    ref_counts = {"AAA": 10}
     # "UAA" is STOP; ignored → no contributing codons → 0.0
     assert cai("UAA", ref_counts) == 0.0
-    # STOP mixed with partial trailing codon that doesn't form a full triplet
+    # STOP mixed with partial trailing base: "UAA" + "U" (ignored) -> still 0.0
     assert cai("UAAU", ref_counts) == 0.0
 
 
@@ -52,7 +65,7 @@ def test_invalid_codon_raises_value_error():
     ref_counts = {"AAA": 10}
     with pytest.raises(ValueError):
         cai("XYZ", ref_counts)  # not in codon table
-    # Also ensure invalid length triplets aren't the issue here: use a full invalid triplet
+    # Ensure a full-length invalid triplet raises
     with pytest.raises(ValueError):
         cai("ABU", ref_counts)
 
