@@ -1,6 +1,6 @@
 import pytest
 import math
-from biobase.analysis.cai import (
+from biobase.analysis import (
     cai,
     ref_counts_from_sequences,
     ref_freqs_from_sequences,
@@ -109,10 +109,12 @@ def test_ref_freqs_normalizes_and_matches_counts_ratios():
     seqs = ["ATGGCCGCU", "AUGGCC"]  # AUG x2, GCC x2, GCU x1
     counts = ref_counts_from_sequences(seqs)
     freqs = ref_freqs_from_sequences(seqs)
+    expected = {"AUG": 2, "GCC": 2, "GCU": 1}
 
     # Sum to 1 within numerical tolerance
     assert abs(sum(freqs.values()) - 1.0) < 1e-12
 
+    assert counts == expected
     total = float(sum(counts.values()))
     for k, v in counts.items():
         # Each frequency should match count/total within tolerance

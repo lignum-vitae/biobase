@@ -76,7 +76,7 @@ def cai(
     s = seq.upper().replace(" ", "").replace("\n", "").replace("T", "U")
 
     # 2) Split into full codons only
-    codons = [s[i:i + 3] for i in range(0, len(s) - (len(s) % 3), 3)]
+    codons = [s[i : i + 3] for i in range(0, len(s) - (len(s) % 3), 3)]
 
     # 3) Validate codons against the genetic code
     invalid = [c for c in codons if c not in CODON_TABLE]
@@ -113,7 +113,7 @@ def cai(
 
 
 def _build_family_max(
-    ref_counts: Mapping[str, int | float]
+    ref_counts: Mapping[str, int | float],
 ) -> tuple[dict[str, float], dict[str, float]]:
     """
     Normalize reference counts to RNA codons and compute per–amino-acid maxima.
@@ -154,7 +154,7 @@ def ref_counts_from_sequences(seqs: Iterable[str]) -> dict[str, int]:
         rna = s.upper().replace(" ", "").replace("\n", "").replace("T", "U")
         # iterate full codons only
         for i in range(0, len(rna) - (len(rna) % 3), 3):
-            codon = rna[i:i + 3]
+            codon = rna[i : i + 3]
             aa = CODON_TABLE.get(codon)
             if aa is None or aa == "STOP":
                 continue
