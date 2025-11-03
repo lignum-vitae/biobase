@@ -1,5 +1,10 @@
 import pytest
-from biobase.analysis.cai import cai
+import math
+from biobase.analysis.cai import (
+    cai,
+    ref_counts_from_sequences,
+    ref_freqs_from_sequences,
+)
 
 
 def test_basic_cai_example():
@@ -97,3 +102,25 @@ def test_stop_codons_are_ignored_when_mixed():
     seq = "AAA UAA AAG"
     v = cai(seq, ref_counts)
     assert 0.0 < v <= 1.0
+
+
+def test_ref_freqs_normalizes_and_matches_counts_ratios():
+    """Frequencies should sum to ~1.0 and be proportional to counts."""
+    seqs = ["ATGGCCGCU", "AUGGCC"]  # AUG x2, GCC x2, GCU x1
+    counts = ref_counts_from_sequences(seqs)
+    freqs = ref_freqs_from_sequences(seqs)
+
+    # Sum to 1 within numerical tolerance
+    assert abs(sum(freqs.values()) - 1.0) < 1e-12
+
+    total = float(sum(counts.values()))
+    for k, v in counts.items():
+        # Each frequency should match count/total within tolerance
+        assert math.isclose(freqs.get(k, 0.0), v / total, rel_tol=1e-12, abs_tol=1e-12)
+
+
+def test_ref_freqs_empty_when_no_valid_codons():
+    """If all sequences are empty/STOP/invalid, return {}."""
+    seqs = ["", "UAA", "UGA", "UAG", "XYZ"]
+    freqs = ref_freqs_from_sequences(seqs)
+    assert freqs == {}
