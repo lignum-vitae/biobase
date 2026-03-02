@@ -92,10 +92,10 @@ git remote
 
 ```nginx
 # Creates a new branch that stays in sync with the main repository
-git checkout -b feature-name upstream/main
+git switch -c feature-name upstream/main
 
 # Checks out existing branch if you already have a branch locally
-git checkout feature-name
+git switch feature-name
 ```
 
 #### 6. Make your changes in your local repository
@@ -146,38 +146,20 @@ messy commits. Consider using it only when:
 - You've checked git status first
 - Your .gitignore is properly configured
 
-#### 9. Rebase Your Development Branch on the Latest Upstream
+#### 9. Push your branch to your fork on GitHub:
 
 ```nginx
-# Make sure all is committed (or stashed) as necessary on this branch
-git rebase -i upstream/main feature-name
+git push
 ```
 
-You may need to resolve conflicts that occur when both a file on the development
-trunk and one of the files in your branch have been changed.
-Edit each conflicting file to resolve the differences, then continue the rebase.
-Each file will need to be "added" to mark the conflict as resolved:
-
-```nginx
-# Resolve conflicts in each file, then:
-git add <resolved-filename>
-git rebase --continue
-```
-
-#### 10. Push your branch to your fork on GitHub:
-
-```nginx
-git push -f origin feature-name
-```
-
-#### 11. Open a Pull Request (PR) from your branch to the main branch of the original Biobase repository on GitHub
+#### 10. Open a Pull Request (PR) from your branch to the main branch of the original Biobase repository on GitHub
 
 - You may need to click the `compare across forks` link under the `Compare changes`
 header that populates when you click `New pull request` to see your local repo fork.
 - Remember to add tests to the tests directory for any new functionality and ensure
 that all tests pass when you run `pytest tests` from the root directory
 
-#### 12. In your PR description, include:
+#### 11. In your PR description, include:
 
 - A summary of the changes.
 - Any relevant issue numbers (e.g., fixes #123).
