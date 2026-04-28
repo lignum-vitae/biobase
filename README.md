@@ -160,6 +160,21 @@ print(f"Sequences without matches:\n{"".join([f"- {nm}\n" for nm in non_match])}
 
 #### Parse FASTA
 
+Each entry is stored as a record
+
+```python
+class FastaRecord:
+    def __init__(self, header, sequence) -> None:
+        self.id
+        self.name
+        self.seq
+    def __repr__(self) -> str:
+    def __str__(self) -> str:
+    def length(self) -> int:
+```
+
+Class and function to read fasta string
+
 ```python
 from biobase.parser import FastaParser, fasta_parser
 fasta = """>CAA39742.1 cytochrome b (mitochondrion) [Sus scrofa]
@@ -167,12 +182,14 @@ MTNIRKSHPLMKIINNAFIDLPAPSNISSWWNFGSLLGICLILQILTGLFLAMHYTSDTTTAFSSVTHIC"""
 
 # Class that yields generator
 records = list(FastaParser(fasta))
+# File parsing done with FastaFileParser(fasta_file_path)
 r: FastaRecord = records[0]
 print(r.id) # CAA39742.1
 print(r.seq) # MTNIRKSHPLMKIINNAFIDLPAPSNISSWWNFGSLLGICLILQILTGLFLAMHYTSDTTTAFSSVTHIC
 
 # Function that returns list
 records = fasta_parser(fasta)
+# File parsing done with fasta_file_parser(fasta_file_path)
 for r in records:
     print(r.id) # CAA39742.1
     print(r.seq) # MTNIRKSHPLMKIINNAFIDLPAPSNISSWWNFGSLLGICLILQILTGLFLAMHYTSDTTTAFSSVTHIC
@@ -180,6 +197,23 @@ for r in records:
 ```
 
 #### Parse FASTQ
+
+Each entry is stored as a record
+
+```python
+class FastqRecord:
+    def __init__(self, id: str, seq: str, separator: str, quality: str) -> None:
+        self.id: str
+        self.seq: str
+        self.separator: str
+        self.quality: str
+    def __repr__(self) -> str:
+    def __str__(self) -> str:
+    def length(self) -> int:
+    def convert_to_fasta(self) -> str:
+    def phred_scores(self) -> np.ndarray:
+    def average_quality(self) -> float:
+```
 
 ```python
 from biobase.parser import FastqParser, fastq_parser
@@ -190,27 +224,158 @@ CGGTAGCCAGCTGCGTTCAGTATG
 
 # Class that yields generator
 records = list(FastqParser(fastq))
+# File reading done with FastqFileParser(fastq_file_path)
 r: FastqRecord = records[0]
 print(r.id) # 2fa9ee19-5c51-4281-abdd-eac86
 print(r.seq) # CGGTAGCCAGCTGCGTTCAGTATG
 
 # Function that returns list
 records = fastq_parser(fastq)
+# File reading done with fastq_file_parser(fastq_file_path)
 for r in records:
     print(r.id) # 2fa9ee19-5c51-4281-abdd-eac86
     print(r.seq) # CGGTAGCCAGCTGCGTTCAGTATG
 ```
 
+```python
+class FastqFileParser(FastqParserBase):
+    def __init__(self, filepath: str) -> None:
+        self.filepath = filepath
+    def __iter__(self) -> Iterator[FastqRecord]:
+    def count_reads(self) -> int:
+    def filter_reads(self, min_avg_quality: float) -> Iterator[FastqRecord]:
+    def to_fasta(self) -> list[FastaRecord]:
+    def to_fasta_iter(self) -> Iterator[FastaRecord]:
+    def to_fasta_file(self, out_path: str) -> None:
+    def read_lengths(self) -> np.ndarray:
+
+class FastqParser(FastqParserBase):
+    def __init__(self, reads: str) -> None:
+        self.reads = reads
+    def __iter__(self) -> Iterator[FastqRecord]:
+    def count_reads(self) -> int:
+    def filter_reads(self, min_avg_quality: float) -> Iterator[FastqRecord]:
+    def to_fasta(self) -> list[FastaRecord]:
+    def to_fasta_iter(self) -> Iterator[FastaRecord]:
+    def to_fasta_file(self, out_path: str) -> None:
+    def read_lengths(self) -> np.ndarray:
+```
+
+#### Parse Genbank
+
+Each entry is parsed as a record
+
+```python
+class GenBankRecord:
+    """Represents a parsed GenBank record with entries"""
+
+    _entry_classes: dict[str, type] = {
+        "LOCUS": Locus,
+        "DEFINITION": Definition,
+        "ACCESSION": Accession,
+        "FEATURES": Features,
+        "ORIGIN": Origin,
+        "VERSION": Version,
+    }
+
+    def __init__(
+        self, entries: dict[str, Any], source_filepath: Path | None = None
+    ) -> None:
+        self.id: str
+        self.seq: str
+        self.name: str
+        self.entries: dict[str, Any] # Dict of entry classes
+        self._source_filepath
+    def __repr__(self) -> str:
+```
+
+```python
+from biobase.parser import GenBankFileParser
+
+"""
+# GENBANK FILE CONTENTS
+
+LOCUS       ADF90000            50 bp    DNA     circular INV 01-JAN-2023
+DEFINITION  A test record.
+ACCESSION   ADF90000
+VERSION     ADF90000.1  GI:100000000
+KEYWORDS    second; test.
+ORIGIN
+        1 cgatcggatc gattcggact ggatcgatcg atcggatcga tcggatcgga
+//
+"""
+
+parser = GenBankFileParser(path_to_file)
+records = list(parser)
+
+r = records[0]
+print(r.id)  # ADF90000
+print(r.seq) # cgatcggatcgattcggactggatcgatcgatcggatcgatcggatcgga
+
+version = r.entries["VERSION"]
+print(version.version) # ADF90000.1
+
+# Entries
+
+class Locus:
+    _MOLECULE_TYPE_LIST: list[str] = ["DNA", "RNA", "PROTEIN"]
+    def __init__(self, line: str) -> None:
+        self._raw_line: str
+        self._parts: list[str]
+        self.name: str
+        self.length: int
+        self.molecule_type: str
+        self.topology: str
+        self.date: str
+        self._set_info()
+    def _set_info(self):
+    def __repr__(self) -> str:
+
+class Definition:
+    def __init__(self, info: str) -> None:
+        self.info: str
+    def __repr__(self) -> str:
+
+class Accession:
+    def __init__(self, info: str) -> None:
+        self.info: str
+    def __repr__(self) -> str:
+
+class Version:
+    def __init__(self, info: str) -> None:
+        parts: list[str]
+        self.version: str
+        self.gi: str | None
+    def __repr__(self) -> str:
+
+class Origin:
+    def __init__(self, raw_text: str) -> None:
+        self._raw_text: str
+    @property
+    def sequence(self) -> str:
+    def __repr__(self) -> str:
+
+class Features:
+    def __init__(self, info: str) -> None:
+        self.info: str
+        self.entries: list[SingleFeature]
+        self._parse_features()
+    def __repr__(self) -> str:
+    def _parse_features(self) -> None:
+```
+
 ## Requirements
 
 - Python 3.10+
-- pip (for installation)
+- pip or uv (for installation)
 
 ## Installation
 
 ### Regular Installation
 
 `pip install biobase`
+
+`uv add biobase`
 
 ### Development Installation
 

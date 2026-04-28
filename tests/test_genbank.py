@@ -6,7 +6,7 @@ from biobase.parser.genbank import (
     Accession,
     Definition,
     Features,
-    GenBankParser,
+    GenBankFileParser,
     GenBankRecord,
     Locus,
     Origin,
@@ -87,26 +87,26 @@ def sample_gbk_file_multi(tmp_path: Path) -> str:
 @pytest.fixture
 def first_record(sample_gbk_file_single: str) -> GenBankRecord:
     """Fixture to get the GenBankRecord object for the first sample."""
-    parser = GenBankParser(sample_gbk_file_single)
+    parser = GenBankFileParser(sample_gbk_file_single)
     # The parser is now an iterator, so we can use next() or list access
     return next(iter(parser))
 
 
-# --- Tests for the GenBankParser class ---
+# --- Tests for the GenBankFileParser class ---
 
 
 def test_genbank_parser_read_all(sample_gbk_file_single: str):
-    """Test that the GenBankParser can read a file correctly (read_all renamed)."""
-    parser = GenBankParser(sample_gbk_file_single)
-    content = parser.read_all()  # Updated function name
+    """Test that the GenBankFileParser can read a file correctly (_load_contents renamed)."""
+    parser = GenBankFileParser(sample_gbk_file_single)
+    content = parser._load_contents()  # Updated function name
     assert content.startswith("LOCUS")
     assert "Zika virus" in content
 
 
 def test_genbank_parser_split_into_blocks(sample_gbk_file_single: str):
     """Test the internal block splitting logic of the parser on a single record."""
-    parser = GenBankParser(sample_gbk_file_single)
-    content = parser.read_all()
+    parser = GenBankFileParser(sample_gbk_file_single)
+    content = parser._load_contents()
     # Need to pass only the record part to _split_into_blocks
     blocks = list(parser._split_into_blocks(content.split("//")[0].strip()))
 
@@ -133,8 +133,8 @@ def test_genbank_parser_split_into_blocks(sample_gbk_file_single: str):
 
 def test_genbank_parser_split_into_records_single(sample_gbk_file_single: str):
     """Test splitting a file with a single record."""
-    parser = GenBankParser(sample_gbk_file_single)
-    content = parser.read_all()
+    parser = GenBankFileParser(sample_gbk_file_single)
+    content = parser._load_contents()
     records = list(parser._split_into_records(content))
     assert len(records) == 1
     assert records[0].strip().endswith("//")
@@ -142,8 +142,8 @@ def test_genbank_parser_split_into_records_single(sample_gbk_file_single: str):
 
 def test_genbank_parser_split_into_records_multi(sample_gbk_file_multi: str):
     """Test splitting a file with multiple records."""
-    parser = GenBankParser(sample_gbk_file_multi)
-    content = parser.read_all()
+    parser = GenBankFileParser(sample_gbk_file_multi)
+    content = parser._load_contents()
     records = list(parser._split_into_records(content))
     assert len(records) == 2
     assert records[0].strip().startswith("LOCUS       NC_012532")
@@ -152,7 +152,7 @@ def test_genbank_parser_split_into_records_multi(sample_gbk_file_multi: str):
 
 def test_genbank_parser_iter_multi_record(sample_gbk_file_multi: str):
     """Test the __iter__ method to ensure all records are yielded."""
-    parser = GenBankParser(sample_gbk_file_multi)
+    parser = GenBankFileParser(sample_gbk_file_multi)
     records: list[GenBankRecord] = list(parser)
 
     assert len(records) == 2

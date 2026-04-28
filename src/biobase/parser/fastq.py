@@ -12,10 +12,10 @@ from .fasta import FastaRecord
 class FastqRecord:
     def __init__(self, id: str, seq: str, separator: str, quality: str) -> None:
         # Validation is done at the file level
-        self.id = id
-        self.seq = seq
-        self.separator = separator
-        self.quality = quality
+        self.id: str = id
+        self.seq: str = seq
+        self.separator: str = separator
+        self.quality: str = quality
 
     # Behavior in case of print or repr
     def __repr__(self) -> str:
