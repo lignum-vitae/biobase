@@ -3,27 +3,6 @@ import importlib.resources
 from pathlib import Path
 
 
-def main():
-    blosum = Blosum(62)
-    pam = Pam(250)
-    identity0 = Identity(0)
-    match = Match()
-
-    print(blosum["A"]["A"])
-    print(blosum["A"])
-    print(blosum)
-    print(pam["A"]["A"])
-    print(pam)
-    print(identity0["A"]["A"])
-    print(identity0["C"]["A"])
-    print(identity0)
-    print(match["A"]["A"])
-    print(match["C"]["A"])
-    print(match)
-    print(Match.available_matrices())
-    print(blosum.available_matrices())
-
-
 class _Matrix:
     matrices = {
         "Blosum": [30, 35, 40, 45, 50, 55, 60, 62, 65, 70, 75, 80, 85, 90],
@@ -397,7 +376,3 @@ def text_matrix_to_json(
         json.dump(scoring_matrix, output_file, indent=4)
 
     print(f"File Successfully created: JSON file created at: {output_path}")
-
-
-if __name__ == "__main__":
-    main()

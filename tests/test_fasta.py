@@ -78,7 +78,15 @@ def test_fasta_file_parser_class(tmp_path):
     records = list(FastaFileParser(str(fasta_file)))
     assert len(records) == 2
     assert records[0].id == "CAA39742.1"
+    assert (
+        records[0].seq
+        == "MTNIRKSHPLMKIINNAFIDLPAPSNISSWWNFGSLLGICLILQILTGLFLAMHYTSDTTTAFSSVTHIC"
+    )
     assert records[1].id == "BAA85863.1"
+    assert (
+        records[1].seq
+        == "MTNIRKSHPLIKIINHSFIDLPAPSNISSWWNFGSLLGVCLMVQIITGLFLAMHYTSDTLTAFSSVTHIC"
+    )
 
 
 def test_fasta_file_parser(tmp_path):

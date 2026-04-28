@@ -4,10 +4,6 @@ from pathlib import Path
 from typing import Any, Iterator
 
 
-def main() -> None:
-    pass
-
-
 class Locus:
     _MOLECULE_TYPE_LIST: list[str] = ["DNA", "RNA", "PROTEIN"]
 
@@ -219,7 +215,7 @@ class GenBankRecord:
         return f"<GenBankRecord for '{locus_name}'>"
 
 
-class GenBankParser:
+class GenBankFileParser:
     """A parser that reads a GenBANK file and splits it into entry blocks"""
 
     _ENTRY_PATTERN = re.compile(r"^[A-Z]+(\s|$)")  # Line starts with all caps
@@ -228,7 +224,7 @@ class GenBankParser:
     def __init__(self, filepath: str | Path) -> None:
         self.filepath = Path(filepath)
 
-    def read_all(self) -> str:
+    def _load_contents(self) -> str:
         with open(self.filepath) as f:
             return f.read()
 
@@ -289,14 +285,10 @@ class GenBankParser:
 
     def __iter__(self) -> Iterator[GenBankRecord]:
         "Allows iterating over the records in the file"
-        file_contents = self.read_all()
+        file_contents = self._load_contents()
         for record_text in self._split_into_records(file_contents):
             # Parse each record block and yield the GenBankRecord object
             if (
                 record_text.strip() != self._RECORD_SEPARATOR
             ):  # Skip empty blocks from splitting
                 yield self._parse_record(record_text)
-
-
-if __name__ == "__main__":
-    main()
