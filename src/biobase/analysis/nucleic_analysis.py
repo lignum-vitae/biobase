@@ -7,11 +7,6 @@ from typing import Iterator, overload, Literal, Tuple
 from biobase.constants import DNA_COMPLEMENTS, MOLECULAR_WEIGHT, CODON_TABLE
 
 
-def main():
-    print(Dna.translate("ATCGTAGC"))
-    print(Nucleotides.translate("ATGTTGTCGCCTT"))
-
-
 class Nucleotides:
     VALID_NUCLEOTIDES = frozenset(
         "ATCGU"
@@ -419,7 +414,3 @@ class Dna:
                 yield start, end, m.group()
             else:
                 yield start, end
-
-
-if __name__ == "__main__":
-    main()

@@ -5,10 +5,6 @@ import re
 from biobase.constants import ONE_LETTER_CODES, ONE_LETTER_CODES_EXT
 
 
-def main():
-    pass
-
-
 def find_motifs(
     sequence: str | dict[str, str], pattern: str, ext: bool = False
 ) -> (
@@ -96,7 +92,3 @@ def find_motifs(
                 non_matches.append(seq_id)
         return result_dict, invalid_ids, non_matches
     raise ValueError("The input must be a non-empty string or FASTA dictionary.")
-
-
-if __name__ == "__main__":
-    main()

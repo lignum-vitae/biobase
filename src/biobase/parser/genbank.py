@@ -4,10 +4,6 @@ from pathlib import Path
 from typing import Any, Iterator
 
 
-def main() -> None:
-    pass
-
-
 class Locus:
     _MOLECULE_TYPE_LIST: list[str] = ["DNA", "RNA", "PROTEIN"]
 
@@ -296,7 +292,3 @@ class GenBankParser:
                 record_text.strip() != self._RECORD_SEPARATOR
             ):  # Skip empty blocks from splitting
                 yield self._parse_record(record_text)
-
-
-if __name__ == "__main__":
-    main()
