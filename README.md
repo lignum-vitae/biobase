@@ -19,6 +19,8 @@ structures and scoring systems in your code.
   - [Analyse DNA sequences](#analyse-dna-sequences)
   - [Find protein motifs](#find-protein-motifs)
   - [Parse FASTA](#parse-fasta)
+  - [Parse FASTQ](#parse-fastq)
+  - [Parse GenBank](#parse-genbank)
 - [Requirements](#requirements)
 - [Installation](#installation)
   - [Regular Installation](#regular-installation)
